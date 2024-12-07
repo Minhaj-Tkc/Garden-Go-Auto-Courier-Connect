@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Garden Go</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="navbar">
+            <!-- App Name on the Left -->
+            <div class="navbar-brand">
+                <a href="{{ url_for('home') }}">Garden Go Auto Courier Connect</a>
+            </div>
+            
+            <!-- Navigation Items on the Right -->
+            <ul class="navbar-links">
+                {% if not current_user.is_authenticated %}
+                    <li><a href="{{ url_for('products') }}">Products</a></li>
+                    <li><a href="{{ url_for('register') }}">Register</a></li>
+                    <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('products') }}">Products</a></li>
+                    
+                    {% if current_user.role == 'Admin' %}
+                        <li><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+                    {% elif current_user.role == 'Courier' %}
+                        <li><a href="{{ url_for('courier_dashboard') }}">Courier Dashboard</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    {% endif %}
+                    
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <p class="{{ category }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    {% block content %}{% endblock %}
+
+     <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 Garden Go. All rights reserved.</p>
+            <p>Contact us at <a href="mailto:info@gardengo.com">info@gardengo.com</a></p>
+        </div>
+    </footer> 
+    
+</body>
+</html>

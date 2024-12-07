@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <!-- Left Section -->
+    <div class="left-section">
+        <h1>Garden Go Auto Courier Connect</h1>
+        <p>Connect with your green thumb and discover gardening essentials today.</p>
+    </div>
+    <!-- Right Section -->
+    <div class="right-section">
+        <form method="POST" class="login-form">
+            {{ form.hidden_tag() }}
+            <div>
+                {{ form.email.label }} {{ form.email }}
+            </div>
+            <div>
+                {{ form.password.label }} {{ form.password }}
+            </div>
+            <div>
+                <button type="submit" class="btn">Login</button>
+            </div>
+            <p class="forgot-password">
+                Forgot your password? <a href="{{ url_for('reset_password') }}">Reset it here!</a>
+            </p>
+            <p class="register">
+                Not a user? <a href="{{ url_for('register') }}">Register here!</a>
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}

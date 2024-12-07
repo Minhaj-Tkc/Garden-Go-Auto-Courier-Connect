@@ -1,0 +1,209 @@
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f0f2f5;
+    color: #2d3436;
+}
+
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #38845A;
+    padding: 10px 20px;
+    color: white;
+    height: 40px;
+}
+
+.navbar-brand a {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.navbar-links {
+    list-style-type: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-links li {
+    margin-left: 20px;
+}
+
+.navbar-links a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+.navbar-links a:hover {
+    background-color: #4CAA73; /* Hover color adjusted */
+}
+
+/* Footer Styling */
+.footer-content {
+    background-color: #38845A;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.footer-content a {
+    color: #66C08A; /* Lighter shade for links */
+    text-decoration: none;
+}
+
+.footer-content a:hover {
+    text-decoration: underline;
+}
+
+/* Form Styling (Shared by Login and Register) */
+form {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    margin: 50px auto;
+    text-align: center;
+}
+
+form div {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+form input {
+    width: 378px;
+    padding: 10px;
+    border: 1px solid #dcdde1;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #dcdde1;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+form input:focus, select:focus {
+    outline: none;
+    border-color: #66C08A; /* Lighter shade of green */
+    box-shadow: 0 0 5px rgba(102, 192, 138, 0.5); /* Matching shadow color */
+}
+
+form .btn {
+    background: #38845A;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    width: 100%;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+form .btn:hover {
+    background: #4CAA73; /* Adjusted hover color */
+}
+
+form p {
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+form p a {
+    color: #38845A;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+form p a:hover {
+    text-decoration: underline;
+}
+
+/* Login and Registration Page Containers */
+.container {
+    display: flex;
+    height: calc(100vh - 180px); /* Adjust for navbar and footer */
+    background-color: #f5f5f5;
+}
+
+.container .left-section {
+    flex: 1;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px;
+}
+
+.container .left-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.container .left-section p {
+    font-size: 1.2rem;
+    line-height: 1.5;
+}
+
+.container .right-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container .form-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Specific to Flash Messages */
+.flash-messages p {
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .container .left-section {
+        display: none;
+    }
+
+    .container .right-section {
+        padding: 20px;
+    }
+}
