@@ -3,6 +3,8 @@
 <head>
     <title>Garden Go</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block css %}
+    {% endblock %}
 </head>
 <body>
     <nav>
@@ -26,17 +28,20 @@
                     <li><a href="{{ url_for('register') }}">Register</a></li>
                     <li><a href="{{ url_for('contact') }}">Contact</a></li>
                 {% else %}
-                    <li><a href="{{ url_for('products') }}">Products</a></li>
-    
+                    
                     {% if current_user.role == 'Admin' %}
                         <li><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
                     {% elif current_user.role == 'Courier' %}
+                        
+                        <li><a href="{{ url_for('update_profile', user_id=current_user.id) }}">Edit Profile</a></li>
                         <li><a href="{{ url_for('courier_dashboard') }}">Courier Dashboard</a></li>
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% else %}
-                        <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ url_for('update_profile', user_id=current_user.id) }}">Edit Profile</a></li>
+                        
+                        <li><a href="{{ url_for('logout') }}">Cart</a></li>
                     {% endif %}
                     
-                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
                 {% endif %}
             </ul>
         </div>
