@@ -12,15 +12,22 @@
                 <a href="{{ url_for('home') }}">Garden Go Auto Courier Connect</a>
             </div>
             
+            <!-- Hamburger Menu (Hidden on large screens) -->
+            <div class="navbar-toggle" id="navbar-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+    
             <!-- Navigation Items on the Right -->
-            <ul class="navbar-links">
+            <ul class="navbar-links" id="navbar-links">
                 {% if not current_user.is_authenticated %}
                     <li><a href="{{ url_for('products') }}">Products</a></li>
                     <li><a href="{{ url_for('register') }}">Register</a></li>
                     <li><a href="{{ url_for('contact') }}">Contact</a></li>
                 {% else %}
                     <li><a href="{{ url_for('products') }}">Products</a></li>
-                    
+    
                     {% if current_user.role == 'Admin' %}
                         <li><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
                     {% elif current_user.role == 'Courier' %}
@@ -34,6 +41,7 @@
             </ul>
         </div>
     </nav>
+    
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -48,11 +56,17 @@
     {% block content %}{% endblock %}
 
      <footer>
-        <div class="footer-content">
+        <div class="footer-content {% if is_footer_fixed %}fixed{% endif %}">
             <p>&copy; 2024 Garden Go. All rights reserved.</p>
             <p>Contact us at <a href="mailto:info@gardengo.com">info@gardengo.com</a></p>
         </div>
     </footer> 
     
+    <!-- Link to JavaScript -->
+
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+
+    {% block scripts %}
+    {% endblock %}
 </body>
 </html>

@@ -1,13 +1,23 @@
-/* General Styling */
-body {
-    font-family: Arial, sans-serif;
+/* ============================
+   General Styling
+============================ */
+
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
     background: #f0f2f5;
     color: #2d3436;
 }
 
-/* Navbar Styling */
+/* ============================
+   Navbar Styling
+============================ */
+
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -15,7 +25,7 @@ body {
     background-color: #38845A;
     padding: 10px 20px;
     color: white;
-    height: 40px;
+    height: 60px;
 }
 
 .navbar-brand a {
@@ -28,8 +38,6 @@ body {
 .navbar-links {
     list-style-type: none;
     display: flex;
-    margin: 0;
-    padding: 0;
 }
 
 .navbar-links li {
@@ -44,39 +52,211 @@ body {
 }
 
 .navbar-links a:hover {
-    background-color: #4CAA73; /* Hover color adjusted */
+    background-color: #4CAA73;
 }
 
-/* Footer Styling */
-.footer-content {
-    background-color: #38845A;
-    color: white;
+/* ============================ Hamburger Menu ============================ */
+
+.navbar-toggle {
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.navbar-toggle .bar {
+    width: 25px;
+    height: 4px;
+    margin: 5px 0;
+    background-color: white;
+}
+
+/* ============================ Media Query for Mobile ============================ */
+
+@media screen and (max-width: 768px) {
+    /* Hide the navigation items by default */
+    .navbar-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        position: absolute;
+        top: 60px; /* Below the navbar */
+        left: 0;
+        background-color: #38845A;
+        padding: 10px 0;
+        text-align: center;
+    }
+
+    .navbar-links li {
+        margin: 10px 0;
+    }
+
+    /* Show the hamburger menu */
+    .navbar-toggle {
+        display: flex;
+    }
+
+    /* Toggle the navigation items when the hamburger is clicked */
+    .navbar-links.active {
+        display: flex;
+    }
+}
+
+
+/* ============================
+   Hero Section
+============================ */
+.hero-section {
     text-align: center;
-    padding: 20px;
-    position: fixed;
-    bottom: 0;
+    padding: 50px 20px;
+}
+
+.hero-section h1 {
+    font-size: 2.5rem;
+    color: #1b5e20;
+    margin-bottom: 10px;
+}
+
+.hero-section p {
+    font-size: 1.2rem;
+    color: #33691e;
+}
+
+/* ============================
+   Carousel Section
+============================ */
+.carousel-wrapper {
+    position: relative;
+    margin: 20px auto;
+    max-width: 90%;
+    overflow: hidden;
+}
+
+.carousel-images img {
+    display: none;
     width: 100%;
+    transition: opacity 0.5s ease-in-out;
 }
 
-.footer-content a {
-    color: #66C08A; /* Lighter shade for links */
-    text-decoration: none;
+.carousel-images img.active-slide {
+    display: block;
+    opacity: 1;
 }
 
-.footer-content a:hover {
-    text-decoration: underline;
+.carousel-controls {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
 }
 
-/* Form Styling (Shared by Login and Register) */
+.carousel-controls button {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px 15px;
+    border-radius: 5px;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+/* ============================
+   Featured Products
+============================ */
+.featured-products {
+    text-align: center;
+    margin: 50px 0;
+}
+
+.featured-products h2 {
+    font-size: 2rem;
+    color: #2b5b2c;
+    margin-bottom: 20px;
+}
+
+.product-list {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.product-item {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 300px;
+}
+
+.product-item img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.product-item h3 {
+    font-size: 1.2rem;
+    color: #1b5e20;
+    margin: 10px 0;
+}
+
+.product-item p {
+    color: #4e4e4e;
+}
+
+/* ============================
+   Login and Registration Page Containers
+============================ */
+.container {
+    display: flex;
+    height: calc(100vh - 180px); 
+    background-color: #f5f5f5;
+}
+
+.container .left-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    /* background: linear-gradient(135deg, #38845A 30%, #4CAA73 100%); */
+    color: rgb(58, 48, 48);
+    width: 60%; /* Set explicit width */
+}
+
+.container .left-section h1{
+    font-size: 3rem;
+}
+
+.container .left-section p{
+    font-size: 1.2rem;
+}
+
+.container .right-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* padding: 20px; */
+    padding-right: 80px;
+    width: 40%; /* Set explicit width */
+    margin: 0;
+}
+
+
+/* ============================
+   Form Styling
+============================ */
 form {
     background: #ffffff;
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    width: 100%;
-    margin: 50px auto;
     text-align: center;
+    width: 430px;
+    max-width: 100%;
 }
 
 form div {
@@ -91,15 +271,7 @@ form label {
     font-size: 0.9rem;
 }
 
-form input {
-    width: 378px;
-    padding: 10px;
-    border: 1px solid #dcdde1;
-    border-radius: 5px;
-    font-size: 1rem;
-}
-
-form select {
+form input, form select {
     width: 100%;
     padding: 10px;
     border: 1px solid #dcdde1;
@@ -107,10 +279,10 @@ form select {
     font-size: 1rem;
 }
 
-form input:focus, select:focus {
+form input:focus, form select:focus {
     outline: none;
-    border-color: #66C08A; /* Lighter shade of green */
-    box-shadow: 0 0 5px rgba(102, 192, 138, 0.5); /* Matching shadow color */
+    border-color: #66C08A;
+    box-shadow: 0 0 5px rgba(102, 192, 138, 0.5);
 }
 
 form .btn {
@@ -126,7 +298,7 @@ form .btn {
 }
 
 form .btn:hover {
-    background: #4CAA73; /* Adjusted hover color */
+    background: #4CAA73;
 }
 
 form p {
@@ -144,66 +316,97 @@ form p a:hover {
     text-decoration: underline;
 }
 
-/* Login and Registration Page Containers */
-.container {
-    display: flex;
-    height: calc(100vh - 180px); /* Adjust for navbar and footer */
-    background-color: #f5f5f5;
+/* ============================
+   Call-to-Action Section
+============================ */
+.cta-section {
+    text-align: center;
+    margin: 30px 0;
 }
 
-.container .left-section {
-    flex: 1;
-    color: black;
+.cta-button {
+    text-decoration: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+    color: white;
+    display: inline-block;
+}
+
+.register-button {
+    background-color: #2e7d32;
+}
+
+.login-button {
+    background-color: #388e3c;
+}
+
+.cta-button:hover {
+    opacity: 0.8;
+}
+
+/* ============================
+   Footer Styling
+============================ */
+.footer-content {
+    background-color: #38845A;
+    color: white;
+    position: relative;
+    height: 120px;
+    
+    /* Flexbox to center content */
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 40px;
+    justify-content: center;  
+    align-items: center;      
 }
 
-.container .left-section h1 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    font-weight: bold;
+
+.footer-content a {
+    color: #66C08A;
+    text-decoration: none;
 }
 
-.container .left-section p {
-    font-size: 1.2rem;
-    line-height: 1.5;
+.footer-content p {
+    margin: 3px;
 }
 
-.container .right-section {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+.footer-content a:hover {
+    text-decoration: underline;
 }
 
-.container .form-container {
-    width: 100%;
-    max-width: 400px;
-}
-
-/* Specific to Flash Messages */
-.flash-messages p {
-    padding: 10px;
-    margin: 10px;
-    border-radius: 5px;
-}
-
-/* Responsive Design */
+/* ============================
+   Responsive Design
+============================ */
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
+        min-height: calc(100vh - 180px); 
+        height: 100%;
     }
 
-    .container .left-section {
+    .container .left-section p{
         display: none;
     }
 
-    .container .right-section {
-        padding: 20px;
+    .container .left-section {
+        padding: 0;
+        padding-top: 10px;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
     }
+    
+    .container .right-section {
+        padding: 30px;
+        padding-top: 0;
+        width: 100%;
+        
+    }
+
+    .product-list {
+        flex-direction: column;
+        align-items: center;
+    }
+
 }
