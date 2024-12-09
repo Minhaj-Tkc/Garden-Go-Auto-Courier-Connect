@@ -32,15 +32,19 @@
                 {% else %}
                     {% if current_user.role == 'Admin' %}
                         <li><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+                        <li><a href="{{ url_for('add_product') }}">Add New Product</a></li>
                     {% elif current_user.role == 'Courier' %}
                         <li><a href="{{ url_for('update_profile', user_id=current_user.id) }}">Edit Profile</a></li>
                         <li><a href="{{ url_for('courier_dashboard') }}">Courier Dashboard</a></li>
-                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                        
                     {% else %}
                         <li><a href="{{ url_for('update_profile', user_id=current_user.id) }}">Edit Profile</a></li>
-                        <li><a href="{{ url_for('cart') }}">Cart</a></li>
-                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                        <li><a href="{{ url_for('products') }}">Products</a></li>
+                        <li><a href="{{ url_for('view_cart') }}">Cart</a></li>
+                        
                     {% endif %}
+                    <li><a href="{{ url_for('products') }}">Products</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
                 {% endif %}
             </ul>
         </div>

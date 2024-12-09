@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add_product.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="form-wrapper">
+    <h1 class="form-title">Add New Product</h1>
+    <form method="POST" action="/add_product" enctype="multipart/form-data" class="form-container">
+        <div class="form-group">
+            <label for="name">Product Name:</label>
+            <input type="text" id="name" name="name" required placeholder="Enter product name">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required placeholder="Enter product description"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" step="0.01" required placeholder="Enter price">
+        </div>
+
+        <div class="form-group">
+            <label for="quantity">Stock Quantity:</label>
+            <input type="number" id="quantity" name="quantity" required placeholder="Enter quantity">
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                <option value="" disabled selected>Select a category</option>
+                {% for category in categories %}
+                <option value="{{ category.category_id }}">{{ category.category_Name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="image_option">Image Option:</label>
+            <select id="image_option" name="image_option" onchange="toggleImageInput()" required>
+                <option value="" disabled selected>Select an image option</option>
+                <option value="url">URL</option>
+                <option value="file">File Upload</option>
+            </select>
+        </div>
+
+        <div id="image_url_div" class="form-group" style="display: none;">
+            <label for="image_url">Product Image URL:</label>
+            <input type="text" id="image_url" name="image_url" placeholder="Enter image URL">
+        </div>
+
+        <div id="image_file_div" class="form-group" style="display: none;">
+            <label for="image_file">Upload Product Image:</label>
+            <input type="file" id="image_file" name="image_file" accept="image/*">
+        </div>
+
+        <button type="submit" class="form-submit">Add Product</button>
+    </form>
+</main>
+
+<script>
+    function toggleImageInput() {
+        const imageOption = document.getElementById('image_option').value;
+        const urlDiv = document.getElementById('image_url_div');
+        const fileDiv = document.getElementById('image_file_div');
+
+        if (imageOption === 'url') {
+            urlDiv.style.display = 'block';
+            fileDiv.style.display = 'none';
+        } else if (imageOption === 'file') {
+            urlDiv.style.display = 'none';
+            fileDiv.style.display = 'block';
+        } else {
+            urlDiv.style.display = 'none';
+            fileDiv.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}
