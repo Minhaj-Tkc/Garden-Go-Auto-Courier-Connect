@@ -13,16 +13,15 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    /* background: linear-gradient(135deg, #38845A 30%, #4CAA73 100%); */
     color: rgb(58, 48, 48);
-    width: 60%; /* Set explicit width */
+    width: 60%;
 }
 
-.container .left-section h1{
+.container .left-section h1 {
     font-size: 3rem;
 }
 
-.container .left-section p{
+.container .left-section p {
     font-size: 1.2rem;
 }
 
@@ -30,12 +29,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    /* padding: 20px; */
     padding-right: 80px;
-    width: 40%; /* Set explicit width */
-    margin: 0;
+    width: 40%;
 }
-
 
 /* ============================
    Form Styling
@@ -105,4 +101,51 @@ form p a {
 
 form p a:hover {
     text-decoration: underline;
+}
+
+/* ============================
+   Responsive Styling
+============================ */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        padding: 20px;
+        height: 100%;
+        min-height: calc(100vh - 180px);
+    }
+
+    .container .left-section, 
+    .container .right-section {
+        width: 100%;
+        padding: 10px;
+    }
+
+    form {
+        width: 100%;
+        padding: 20px;
+    }
+
+    form .btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    form {
+        padding: 15px;
+    }
+
+    form label {
+        font-size: 0.8rem;
+    }
+
+    form input, form select {
+        font-size: 0.9rem;
+    }
+
+    form .btn {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
 }

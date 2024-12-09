@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Garden Go</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    {% block css %}
-    {% endblock %}
+    {% block css %}{% endblock %}
 </head>
 <body>
+    <!-- Navigation Bar -->
     <nav>
         <div class="navbar">
             <!-- App Name on the Left -->
@@ -14,64 +16,65 @@
                 <a href="{{ url_for('home') }}">Garden Go Auto Courier Connect</a>
             </div>
             
-            <!-- Hamburger Menu (Hidden on large screens) -->
-            <div class="navbar-toggle" id="navbar-toggle">
+            <!-- Hamburger Menu for Mobile -->
+            <button class="navbar-toggle" id="navbar-toggle" aria-label="Toggle navigation">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
-            </div>
+            </button>
     
-            <!-- Navigation Items on the Right -->
+            <!-- Navigation Items -->
             <ul class="navbar-links" id="navbar-links">
                 {% if not current_user.is_authenticated %}
                     <li><a href="{{ url_for('products') }}">Products</a></li>
                     <li><a href="{{ url_for('register') }}">Register</a></li>
                     <li><a href="{{ url_for('contact') }}">Contact</a></li>
                 {% else %}
-                    
                     {% if current_user.role == 'Admin' %}
                         <li><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
                     {% elif current_user.role == 'Courier' %}
-                        
                         <li><a href="{{ url_for('update_profile', user_id=current_user.id) }}">Edit Profile</a></li>
                         <li><a href="{{ url_for('courier_dashboard') }}">Courier Dashboard</a></li>
                         <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% else %}
                         <li><a href="{{ url_for('update_profile', user_id=current_user.id) }}">Edit Profile</a></li>
-                        
-                        <li><a href="{{ url_for('logout') }}">Cart</a></li>
+                        <li><a href="{{ url_for('cart') }}">Cart</a></li>
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% endif %}
-                    
                 {% endif %}
             </ul>
         </div>
     </nav>
     
-
+    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="flash-messages">
                 {% for category, message in messages %}
-                    <p class="{{ category }}">{{ message }}</p>
+                    <div class="alert {{ category }}">
+                        {{ message }}
+                    </div>
                 {% endfor %}
             </div>
         {% endif %}
     {% endwith %}
     
-    {% block content %}{% endblock %}
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
 
-     <footer>
-        <div class="footer-content {% if is_footer_fixed %}fixed{% endif %}">
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content {% if is_footer_fixed %}fixed{% else %}default{% endif %}">
             <p>&copy; 2024 Garden Go. All rights reserved.</p>
             <p>Contact us at <a href="mailto:info@gardengo.com">info@gardengo.com</a></p>
         </div>
     </footer> 
-    
-    <!-- Link to JavaScript -->
 
+    <!-- JavaScript -->
     <script src="{{ url_for('static', filename='js/base.js') }}"></script>
-
-    {% block scripts %}
-    {% endblock %}
+    
+    {% block scripts %}{% endblock %}
 </body>
 </html>
