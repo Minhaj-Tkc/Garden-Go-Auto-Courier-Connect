@@ -1,6 +1,4 @@
-/* ============================
-   Hero Section
-============================ */
+/* Hero Section */
 .hero-section {
     text-align: center;
     padding: 50px 20px;
@@ -17,9 +15,7 @@
     color: #33691e;
 }
 
-/* ============================
-   Carousel Section
-============================ */
+/* Carousel Section */
 .carousel-wrapper {
     position: relative;
     margin: 20px auto;
@@ -59,9 +55,8 @@
     margin-right: 50px;
 }
 
-/* ============================
-   Featured Products
-============================ */
+
+/* Featured Products */
 .featured-products {
     text-align: center;
     margin: 50px 0;
@@ -104,13 +99,11 @@
 }
 
 
+/* Call-to-Action Section */
 
-/* ============================
-   Call-to-Action Section
-============================ */
 .cta-section {
     text-align: center;
-    margin: 30px 0;
+    padding: 30px 0;
 }
 
 .cta-button {
@@ -135,38 +128,11 @@
 }
 
 
-/* ============================
-   Responsive Design
-============================ */
 @media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-        min-height: calc(100vh - 180px); 
-        height: 100%;
-    }
-
-    .container .left-section p{
-        display: none;
-    }
-
-    .container .left-section {
-        padding: 0;
-        padding-top: 10px;
-        width: 100%;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .container .right-section {
-        padding: 30px;
-        padding-top: 0;
-        width: 100%;
-        
-    }
 
     .product-list {
         flex-direction: column;
         align-items: center;
     }
-
+    
 }

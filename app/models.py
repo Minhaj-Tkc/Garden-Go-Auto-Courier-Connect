@@ -8,30 +8,28 @@ db = SQLAlchemy()
 # User Model
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
-    
-    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.String(50), nullable=False, default='Customer')
-    
-    # Common fields
+    role = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    profile_updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    profile_updated_at = db.Column(db.DateTime)
     last_login = db.Column(db.DateTime)
-
-    # Role-specific fields
-    address = db.Column(db.String(300))  # Only for Customers
-    phone = db.Column(db.String(15))  # Common for all
-    pincode = db.Column(db.String(10))  # Only for Customers
-
-    # Courier-specific fields
-    vehicle_info = db.Column(db.String(150))  # Vehicle description
-    vehicle_number = db.Column(db.String(50))  # Vehicle license plate
+    address = db.Column(db.String(300))
+    phone_number = db.Column(db.String(15))
+    pincode = db.Column(db.String(10))
+    region = db.Column(db.String(50))
+    country = db.Column(db.String(50))
+    vehicle_info = db.Column(db.String(150))
+    vehicle_number = db.Column(db.String(50))
 
     # Relationships
-    cart = db.relationship('Cart', backref='user', lazy=True)
-    orders = db.relationship('Order', backref='user', lazy=True)
+    orders = db.relationship('Order', foreign_keys='Order.user_id', back_populates='user')  # Updated
+    assigned_orders = db.relationship('Order', foreign_keys='Order.assigned_to', back_populates='assigned_user')  # New relationship
+    carts = db.relationship('Cart', back_populates='user')
+    password_resets = db.relationship('PasswordReset', back_populates='user')
+    subscriptions = db.relationship('Subscription', back_populates='user')
 
     # Password utilities
     def set_password(self, password):
@@ -39,63 +37,110 @@ class User(db.Model, UserMixin):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def get_id(self):
+        return str(self.user_id)
 
-# Category Model
-class Category(db.Model):
-    __tablename__ = 'category'
-    category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    category_Name = db.Column(db.String(50), nullable=False, unique=True)
-    category_description = db.Column(db.Text, nullable=True)
-    products = db.relationship('Product', backref='category', lazy=True)
+class PasswordReset(db.Model):
+    __tablename__ = 'passwordreset'
+    passwordreset_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    ptoken = db.Column(db.String(256), nullable=False, unique=True)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-# Product Model
-class Product(db.Model):
-    __tablename__ = 'product'
+    user = db.relationship('User', back_populates='password_resets')
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
-    price = db.Column(db.Float, nullable=False)
-    description = db.Column(db.String)
-    stock_quantity = db.Column(db.Integer)
-    image_url = db.Column(db.String)
-
-    category_id = db.Column(db.Integer, db.ForeignKey('category.category_id'), nullable=False)
-
-    def __repr__(self):
-        return f'<Product {self.name}>'
-
-# Cart Model
 class Cart(db.Model):
     __tablename__ = 'cart'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    cart_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    cart_items = db.relationship('CartItem', backref='cart', lazy=True)
 
-# CartItem Model
+    user = db.relationship('User', back_populates='carts')
+    cart_items = db.relationship('CartItem', back_populates='cart')
+
 class CartItem(db.Model):
     __tablename__ = 'cart_item'
-    id = db.Column(db.Integer, primary_key=True)
-    cart_id = db.Column(db.Integer, db.ForeignKey('cart.id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False, default=1)
-    product = db.relationship('Product', backref='cart_items')
+    cart_item_id = db.Column(db.Integer, primary_key=True)
+    cart_id = db.Column(db.Integer, db.ForeignKey('cart.cart_id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('product.product_id'))
+    quantity = db.Column(db.Integer, nullable=False)
 
-# Order Model
+    cart = db.relationship('Cart', back_populates='cart_items')
+    product = db.relationship('Product', back_populates='cart_items')
+
+class Product(db.Model):
+    __tablename__ = 'product'
+    product_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
+    cost_price = db.Column(db.Float, nullable=False)
+    selling_price = db.Column(db.Float, nullable=False)
+    description = db.Column(db.String)
+    stock_quantity = db.Column(db.Integer, nullable=False)
+    image_url = db.Column(db.String)
+    product_weight = db.Column(db.Float, nullable=False)  # New attribute
+    category_id = db.Column(db.Integer, db.ForeignKey('category.category_id'))
+
+    category = db.relationship('Category', back_populates='products')
+    cart_items = db.relationship('CartItem', back_populates='product')
+    order_items = db.relationship('OrderItem', back_populates='product')
+
+class Category(db.Model):
+    __tablename__ = 'category'
+    category_id = db.Column(db.Integer, primary_key=True)
+    category_name = db.Column(db.String(50), nullable=False)
+    category_description = db.Column(db.String)
+
+    products = db.relationship('Product', back_populates='category')
+
 class Order(db.Model):
     __tablename__ = 'order'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    order_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    assigned_to = db.Column(db.Integer, db.ForeignKey('users.user_id'))  # New attribute
+    status = db.Column(db.String, nullable=False)
+    address = db.Column(db.String(300))
+    estimated_delivery = db.Column(db.DateTime)
+    actual_delivery = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     total_price = db.Column(db.Float, nullable=False)
+    shipping_cost = db.Column(db.Float, nullable=False)
+    pincode = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(50), default='Pending')
-    order_items = db.relationship('OrderItem', backref='order', lazy=True)
 
-# OrderItem Model
+    user = db.relationship('User', foreign_keys=[user_id], back_populates='orders')  # Updated
+    assigned_user = db.relationship('User', foreign_keys=[assigned_to], back_populates='assigned_orders')  # New relationship
+    order_items = db.relationship('OrderItem', back_populates='order')
+    audit_logs = db.relationship('Audit', back_populates='order')
+
 class OrderItem(db.Model):
     __tablename__ = 'order_item'
-    id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    order_item_id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.order_id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('product.product_id'))
     quantity = db.Column(db.Integer, nullable=False)
-    product = db.relationship('Product', backref='order_items')
+
+    order = db.relationship('Order', back_populates='order_items')
+    product = db.relationship('Product', back_populates='order_items')
+
+class Audit(db.Model):
+    __tablename__ = 'audit'
+    record_id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.order_id'))
+    status = db.Column(db.String, nullable=False)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_by = db.Column(db.String, nullable=False)
+    reason = db.Column(db.String)
+
+    order = db.relationship('Order', back_populates='audit_logs')
+
+class Subscription(db.Model):
+    __tablename__ = 'subscription'
+    subscription_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    endpoint = db.Column(db.String, nullable=False)
+    auth = db.Column(db.String, nullable=False)
+    p256dh = db.Column(db.String, nullable=False)
+
+    user = db.relationship('User', back_populates='subscriptions')

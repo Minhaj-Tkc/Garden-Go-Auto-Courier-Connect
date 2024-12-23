@@ -1,42 +1,6 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/order_summary.css') }}">
-{% endblock %}
 
 {% block content %}
-<div class="wrapper-order-container">
-<div class="order-container">
-    <h1>Order Summary</h1>
-    <div class="order-details">
-        <p><strong>Order ID:</strong> {{ order.id }}</p>
-        <p><strong>Order Date:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-        <p><strong>Status:</strong> {{ order.status }}</p>
-        <p><strong>Total Price:</strong> ${{ "%.2f" | format(order.total_price) }}</p>
-    </div>
-
-    <table class="order-items">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in order.order_items %}
-            <tr>
-                <td>{{ item.product.name }}</td>
-                <td>${{ "%.2f" | format(item.product.price) }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>${{ "%.2f" | format(item.quantity * item.product.price) }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ url_for('products') }}" class="btn btn-primary">Continue Shopping</a>
-</div>
-</div>
+<h1>Order Summary Page</h1>
 {% endblock %}
