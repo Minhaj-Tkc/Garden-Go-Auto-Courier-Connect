@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/edit_profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="update-profile-wrapper">
+  <div class="form-update-container">
+    <h2>Update Profile</h2>
+    <form method="POST" action="{{ url_for('update_profile', user_id=user.user_id) }}" class="form-container">
+        {{ form.hidden_tag() }}
+      
+        <div class="form-group">
+          <label for="name">Name</label>
+          {{ form.name(class_="form-input", placeholder="Enter your name") }}
+        </div>
+      
+        <div class="form-group">
+          <label for="phone_number">Phone</label>
+          {{ form.phone_number(class_="form-input", placeholder="Enter your phone number") }}
+        </div>
+
+        <div class="form-group">
+          <label for="country">Country</label>
+          {{ form.country(class_="form-input", placeholder="Enter your country") }}
+        </div>
+
+        <div class="form-group">
+          <label for="region">Region</label>
+          {{ form.region(class_="form-select") }}
+        </div>
+      
+        {% if current_user.role == 'Customer' %}
+          <div class="form-group">
+            <label for="address">Address</label>
+            {{ form.address(class_="form-textarea", placeholder="Enter your address") }}
+          </div>
+          <div class="form-group">
+            <label for="pincode">Pincode</label>
+            {{ form.pincode(class_="form-input", placeholder="Enter your pincode") }}
+          </div>
+        {% elif current_user.role == 'Courier' %}
+          <div class="form-group">
+            <label for="vehicle_info">Vehicle Info</label>
+            {{ form.vehicle_info(class_="form-input", placeholder="Enter vehicle information") }}
+          </div>
+          <div class="form-group">
+            <label for="vehicle_number">Vehicle Number</label>
+            {{ form.vehicle_number(class_="form-input", placeholder="Enter vehicle number") }}
+          </div>
+        {% endif %}
+      
+        <div class="form-actions">
+          {{ form.submit(class_="btn-submit") }}
+        </div>
+      </form>
+  </div>
+</div>
+{% endblock %}

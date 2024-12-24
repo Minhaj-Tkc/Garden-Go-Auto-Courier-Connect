@@ -66,11 +66,51 @@ def login():
             elif user.role == 'Courier':
                 return redirect(url_for('courier_dashboard'))
             else:
-                return redirect(url_for('dashboard'))
+                return redirect(url_for('home'))
 
         flash('Invalid email or password', 'danger')
     return render_template('login.html', form=form)
 
+
+
+@app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def update_profile(user_id):
+    user = User.query.get_or_404(user_id)
+
+    if user != current_user and not current_user.is_admin:
+        flash('You do not have permission to edit this profile.', 'danger')
+        return redirect(url_for('home'))
+
+    form = ProfileUpdateForm(obj=user)
+
+    if form.validate_on_submit():
+        try:
+            # Update common fields
+            user.name = form.name.data
+            user.phone_number = form.phone.data
+
+            # Update role-specific fields
+            if user.role == 'Customer':
+                user.address = form.address.data
+                user.pincode = form.pincode.data
+                user.country = form.country.data
+                user.region = form.region.data
+            elif user.role == 'Courier':
+                user.vehicle_info = form.vehicle_info.data
+                user.vehicle_number = form.vehicle_number.data
+
+            # Update the profile_updated_at field
+            user.profile_updated_at = datetime.utcnow()
+
+            db.session.commit()
+            flash('Profile updated successfully!', 'success')
+            return redirect(url_for('update_profile', user_id=user_id))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'An error occurred: {e}', 'danger')
+
+    return render_template('edit_profile.html', form=form, user=user)
 
 
 @app.route('/products')

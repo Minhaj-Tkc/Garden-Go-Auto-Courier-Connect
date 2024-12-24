@@ -20,10 +20,11 @@ class LoginForm(FlaskForm):
 
 class ProfileUpdateForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=150)])
-    # email = StringField('Email', validators=[DataRequired(), Email()])
+    phone_number = StringField('Phone', validators=[DataRequired(), Length(min=10, max=15)])
     
-    # Common fields for both Customer and Courier
-    phone = StringField('Phone', validators=[DataRequired(), Length(min=10, max=15)])
+    # New fields
+    country = StringField('Country', validators=[DataRequired(), Length(max=100)])
+    region = SelectField('Region', choices=[('East', 'East'), ('West', 'West'), ('North', 'North'), ('South', 'South')], validators=[DataRequired()])
 
     # Customer-specific fields
     address = TextAreaField('Address', validators=[Length(max=250)])
@@ -34,8 +35,6 @@ class ProfileUpdateForm(FlaskForm):
     vehicle_number = StringField('Vehicle Number', validators=[Length(max=50)])
 
     submit = SubmitField('Update Profile')
-
-    
 
 
 
