@@ -73,6 +73,9 @@ def login():
 
 
 
+from flask import request, redirect, url_for, flash, render_template
+from datetime import datetime
+
 @app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def update_profile(user_id):
@@ -83,12 +86,13 @@ def update_profile(user_id):
         return redirect(url_for('home'))
 
     form = ProfileUpdateForm(obj=user)
-
+    # Get the referrer URL
+    referrer = request.args.get('next', request.referrer)
     if form.validate_on_submit():
         try:
             # Update common fields
             user.name = form.name.data
-            user.phone_number = form.phone.data
+            user.phone_number = form.phone_number.data
 
             # Update role-specific fields
             if user.role == 'Customer':
@@ -105,12 +109,14 @@ def update_profile(user_id):
 
             db.session.commit()
             flash('Profile updated successfully!', 'success')
-            return redirect(url_for('update_profile', user_id=user_id))
+
+            # Redirect to the previous page if referrer is available, otherwise to the home page
+            return redirect(referrer or url_for('home'))
         except Exception as e:
             db.session.rollback()
             flash(f'An error occurred: {e}', 'danger')
 
-    return render_template('edit_profile.html', form=form, user=user)
+    return render_template('edit_profile.html', form=form, user=user, next=referrer)
 
 
 @app.route('/products')
