@@ -78,14 +78,12 @@
               </li>
               {% else %}
               <li class="nav-item">
-                <a
-                  class="nav-link active"
-                  href="{{ url_for('update_profile', user_id=current_user.user_id) }}"
-                  >Edit Profile</a
+                <a class="nav-link active" href="{{ url_for('dashboard') }}"
+                  >Dashboard</a
                 >
               </li>
               <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('home') }}"
+                <a class="nav-link active" href="{{ url_for('show_products') }}"
                   >Products</a
                 >
               </li>
@@ -93,11 +91,7 @@
                 <a class="nav-link active" href="{{ url_for('home') }}">Cart</a>
               </li>
               {% endif %}
-              <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('logout') }}"
-                  >Logout</a
-                >
-              </li>
+              
               {% endif %}
             </ul>
           </div>

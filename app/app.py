@@ -72,10 +72,6 @@ def login():
     return render_template('login.html', form=form)
 
 
-
-from flask import request, redirect, url_for, flash, render_template
-from datetime import datetime
-
 @app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def update_profile(user_id):
@@ -119,13 +115,56 @@ def update_profile(user_id):
     return render_template('edit_profile.html', form=form, user=user, next=referrer)
 
 
-@app.route('/products')
-def products():
-    # products = Product.query.all()
-    products = "Products"
-    return render_template("products.html", products=products, user=current_user)
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    if current_user.role == 'Customer':
+        return render_template('customer_dashboard.html')
+    elif current_user.role == 'Courier':
+        return redirect(url_for('courier_dashboard'))
+    elif current_user.role == 'Admin':
+        return redirect(url_for('admin_dashboard'))
+    else:
+        flash('Unknown role.', 'danger')
+        return redirect(url_for('logout'))
 
 
+@app.route('/show_products', methods=['GET'])
+def show_products():
+    category_name = request.args.get('category')
+    search_query = request.args.get('search')
+    sort_by = request.args.get('sort_by', 'name')
+
+    products_query = Product.query
+
+    if category_name:
+        products_query = products_query.join(Category).filter(Category.category_name == category_name)
+
+    if search_query:
+        products_query = products_query.filter(
+            Product.name.ilike(f"%{search_query}%") |
+            Product.description.ilike(f"%{search_query}%")
+        )
+
+    if sort_by == 'price':
+        products_query = products_query.order_by(Product.selling_price)
+    elif sort_by == 'weight':
+        products_query = products_query.order_by(Product.product_weight)
+    else:
+        products_query = products_query.order_by(Product.name)
+
+    products = products_query.all()
+    categories = Category.query.with_entities(Category.category_name).distinct()
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Check for AJAX
+        return render_template('partials/product_grid.html', products=products, search_query=search_query)
+
+    return render_template('products.html', products=products, categories=categories, user=current_user)
+
+@app.route('/product/<int:product_id>', methods=['GET'])
+def product_details(product_id):
+    product = Product.query.get_or_404(product_id)  # Fetch product by ID or return 404
+    return render_template('product_details.html', product=product, user=current_user)
 
 @app.route('/contact')
 def contact():

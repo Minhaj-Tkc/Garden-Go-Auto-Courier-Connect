@@ -1,6 +1,45 @@
 {% extends 'base.html' %}
 
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/products.css') }}">
+{% endblock %}
 
 {% block content %}
-<h1>Product page</h1>
+<div class="products-container">
+    <div class="product-page">
+        <h1 class="page-title">Explore Our Products</h1>
+
+        <div class="filter-container">
+            <form method="GET" action="{{ url_for('show_products') }}" class="filter-form">
+                <input type="text" id="search-bar" name="search" placeholder="Search products..." value="{{ request.args.get('search', '') }}" class="search-bar">
+                <select name="category" class="category-select">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category[0] }}" {% if request.args.get('category') == category[0] %}selected{% endif %}>
+                        {{ category[0] }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <select name="sort_by" class="sort-select">
+                    <option value="name" {% if request.args.get('sort_by') == 'name' %}selected{% endif %}>Sort by Name</option>
+                    <option value="price" {% if request.args.get('sort_by') == 'price' %}selected{% endif %}>Sort by Price</option>
+                    <option value="weight" {% if request.args.get('sort_by') == 'weight' %}selected{% endif %}>Sort by Weight</option>
+                </select>
+                <button type="submit" class="filter-btn">Apply</button>
+            </form>
+        </div>
+
+        <!-- Include the product grid -->
+        {% include 'partials/product_grid.html' %}
+    </div>
+</div>
 {% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/styles.js') }}"></script>
+<script src="{{ url_for('static', filename='js/products.js') }}"></script>
+<script>
+    const flashed_messages = {{ get_flashed_messages(with_categories=true) | tojson | safe }};
+</script>
+{% endblock %}
+
