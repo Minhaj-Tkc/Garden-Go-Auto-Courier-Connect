@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from models import db, User, Category, Product, Cart, CartItem, Order, OrderItem
 from forms import RegistrationForm, LoginForm, ProfileUpdateForm
 import os
+import requests
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'

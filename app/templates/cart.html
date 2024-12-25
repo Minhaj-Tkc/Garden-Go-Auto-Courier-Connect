@@ -1,119 +1,119 @@
-{% extends 'base.html' %}
+{% extends "base.html" %} {% block css %}
 <link
   rel="stylesheet"
   href="{{ url_for('static', filename='css/cart.css') }}"
 />
 {% endblock %} {% block content %}
-<div class="wrapper-cart-container">
-  <div class="cart-container">
-    <h1 class="cart-header">Your Shopping Cart</h1>
+<div class="cart-container">
+  <h1 class="cart-header">Your Shopping Cart</h1>
 
-    <div class="cart-main">
-      <!-- Left Section: Cart Items -->
-      <div class="cart-left">
-        {% if cart_items %} {% for item in cart_items %}
-        <div class="cart-items">
-          <!-- Product Image -->
+  <div class="cart-main">
+    <!-- Left Section: Cart Items -->
+    <div class="cart-left">
+      {% if cart_items %} {% for item in cart_items %}
+      <div class="cart-items">
+        <!-- Product Image -->
+        <a
+          href="{{ url_for('product_details', product_id=item.product.product_id) }}"
+        >
+          <img
+            src="{{ item.product.image_url }}"
+            alt="{{ item.product.name }}"
+            class="cart-item-image"
+          />
+        </a>
+        <!-- Product Details -->
+        <div class="cart-item-details">
           <a
             href="{{ url_for('product_details', product_id=item.product.product_id) }}"
           >
-            <img
-              src="{{ item.product.image_url }}"
-              alt="{{ item.product.name }}"
-              class="cart-item-image"
-            />
+            <h5>{{ item.product.name }}</h5>
           </a>
-          <!-- Product Details -->
-          <div class="cart-item-details">
-            <a
-              href="{{ url_for('product_details', product_id=item.product.product_id) }}"
+          <!-- Quantity Control -->
+          <div class="quantity-control">
+            <button
+              type="button"
+              class="btn-decrement"
+              onclick="updateQuantity('{{ item.cart_item_id }}', -1)"
             >
-              <h5>{{ item.product.name }}</h5>
-            </a>
-            <!-- Quantity Control -->
-            <div class="quantity-control">
-              <button
-                type="button"
-                class="btn-decrement"
-                onclick="updateQuantity('{{ item.cart_item_id }}', -1)"
-              >
-                &minus;
-              </button>
+              &minus;
+            </button>
 
-              <input
-                type="text"
-                id="quantity-{{ item.cart_item_id }}"
-                value="{{ item.quantity }}"
-                min="1"
-                max="10"
-                readonly
-              />
+            <input
+              type="text"
+              id="quantity-{{ item.cart_item_id }}"
+              value="{{ item.quantity }}"
+              min="1"
+              max="10"
+              readonly
+            />
 
-              <button
-                type="button"
-                class="btn-increment"
-                onclick="updateQuantity('{{ item.cart_item_id }}', 1)"
-              >
-                &plus;
-              </button>
-            </div>
-
-            <h4
-              id="price-{{ item.cart_item_id }}"
-              class="cart-item-price"
-              data-price-per-item="{{ item.product.selling_price }}"
+            <button
+              type="button"
+              class="btn-increment"
+              onclick="updateQuantity('{{ item.cart_item_id }}', 1)"
             >
-              ₹{{ "%.2f" | format(item.quantity * item.product.selling_price) }}
-            </h4>
-
-            <div class="remove-btn">
-              <form
-                method="POST"
-                action="{{ url_for('remove_from_cart', item_id=item.cart_item_id) }}"
-              >
-                <button type="submit" class="btn btn-danger">Remove</button>
-              </form>
-            </div>
+              &plus;
+            </button>
           </div>
+
+          <h4
+            id="price-{{ item.cart_item_id }}"
+            class="cart-item-price"
+            data-price-per-item="{{ item.product.selling_price }}"
+          >
+            ₹{{ "%.2f" | format(item.quantity * item.product.selling_price) }}
+          </h4>
         </div>
-        {% endfor %} {% else %}
-        <p>
-          Your cart is empty.
-          <a href="{{ url_for('show_products') }}">Continue shopping</a>.
-        </p>
-        {% endif %}
-      </div>
-
-      <!-- Right Section: Payment Summary -->
-      <div class="cart-right">
-        <div class="order-summary-card">
-          <h3>Order Summary</h3>
-          <div class="order-summary-address">
-            <p><strong>Shipping Address:</strong></p>
-            <p>{{ user.country }}, {{ user.address }}, {{ user.pincode }}</p>
-            <a href="{{ url_for('show_products') }}" class="change-address-link"
-              >Change Address</a
-            >
-          </div>
-          <div class="order-summary-details">
-            <p>Subtotal: <span>₹{{ "%.2f" | format(total_price) }}</span></p>
-            <p>
-              Shipping Cost: <span>₹{{ "%.2f" | format(shipping_cost) }}</span>
-            </p>
-            <p>
-              Total Weight: <span>{{ "%.2f" | format(total_weight) }} kg</span>
-            </p>
-          </div>
-          <div class="order-summary-total">
-            <h4>
-              Total:
-              <span>₹{{ "%.2f" | format(total_price_with_shipping) }}</span>
-            </h4>
-          </div>
-          <form action="{{ url_for('checkout') }}" method="POST">
-            <button type="submit" class="btn btn-success">Confirm Order</button>
+        <div class="remove-btn">
+          <form
+            method="POST"
+            action="{{ url_for('remove_from_cart', item_id=item.cart_item_id) }}"
+          >
+            <button type="submit" class="btn btn-danger">Remove</button>
           </form>
         </div>
+      </div>
+      {% endfor %} {% else %}
+      <p>
+        Your cart is empty.
+        <a href="{{ url_for('show_products') }}">Continue shopping</a>.
+      </p>
+      {% endif %}
+    </div>
+
+    <!-- Right Section: Payment Summary -->
+    <div class="cart-right">
+      <div class="order-summary-card">
+        <h3>Order Summary</h3>
+        <div class="order-summary-address">
+          <p><strong>Shipping Address:</strong></p>
+          <p>{{ user.name }},</p>
+          <p>{{ user.country }}, {{ user.address }}, {{ user.pincode }}</p>
+          <a
+            href="{{ url_for('update_profile', user_id=current_user.user_id) }}"
+            class="change-address-link"
+            >Change Address</a
+          >
+        </div>
+        <div class="order-summary-details">
+          <p>Subtotal: <span>₹{{ "%.2f" | format(total_price) }}</span></p>
+          <p>
+            Shipping Cost: <span>₹{{ "%.2f" | format(shipping_cost) }}</span>
+          </p>
+          <p>
+            Total Weight: <span>{{ "%.2f" | format(total_weight) }} kg</span>
+          </p>
+        </div>
+        <div class="order-summary-total">
+          <h4>
+            Total:
+            <span>₹{{ "%.2f" | format(total_price_with_shipping) }}</span>
+          </h4>
+        </div>
+        <form action="{{ url_for('checkout') }}" method="POST">
+          <button type="submit" class="btn btn-success">Confirm Order</button>
+        </form>
       </div>
     </div>
   </div>
@@ -127,4 +127,3 @@
   const flashed_messages = {{ get_flashed_messages(with_categories=true) | tojson | safe }};
 </script>
 {% endblock %}
-
