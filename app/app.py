@@ -1,7 +1,8 @@
-from flask import Flask, render_template, redirect, url_for, flash, request
+import random
+from flask import Flask, jsonify, render_template, redirect, url_for, flash, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from datetime import datetime
+from datetime import datetime, timedelta
 from models import db, User, Category, Product, Cart, CartItem, Order, OrderItem
 from forms import RegistrationForm, LoginForm, ProfileUpdateForm
 import os
@@ -185,6 +186,295 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.route('/add_to_cart/<int:product_id>', methods=['POST'])
+@login_required
+def add_to_cart(product_id):
+    product = Product.query.get_or_404(product_id)
+
+    # Get the quantity from the form
+    quantity = int(request.form['quantity'])
+
+    # Get or create the cart
+    cart = Cart.query.filter_by(user_id=current_user.user_id).first()
+    if not cart:
+        cart = Cart(user_id=current_user.user_id)
+        db.session.add(cart)
+        db.session.commit()
+
+    # Check if the product is already in the cart
+    cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, product_id=product.product_id).first()
+    if cart_item:
+        cart_item.quantity += quantity  # Update the quantity by the user-selected amount
+        toast_message = f'Added {quantity} more {product.name} to your cart!'
+    else:
+        cart_item = CartItem(cart_id=cart.cart_id, product_id=product.product_id, quantity=quantity)
+        db.session.add(cart_item)
+        toast_message = f'{product.name} added to your cart!'
+
+    db.session.commit()
+
+    # Use the toaster-specific flash
+    flash(toast_message, 'success')  # Success indicates the type for the toaster
+    return redirect(url_for('show_products'))
+
+def calculate_shipping_cost(pincode, total_weight, country):
+    fixed_rate_for_outside_india = 500  # Fixed rate for countries outside India
+    base_shipping_cost = 20  # Base cost for nearby locations
+
+    # If the country is not India, return the fixed rate
+    if country.lower() != 'india':
+        return fixed_rate_for_outside_india
+
+    # For locations within India, calculate cost based on distance using pincode
+    outlet_pincode = '673001'  # Kozhikode, Kerala pincode
+
+    # Using Google Maps Distance Matrix API
+    try:
+        api_key = "AIzaSyAv44pEZqLcd3Tck0ppI4TgTsAVetKeVfc"  
+        response = requests.get(
+            "https://maps.googleapis.com/maps/api/distancematrix/json",
+            params={
+                "origins": outlet_pincode,
+                "destinations": pincode,
+                "key": api_key,
+            }
+        )
+        response.raise_for_status()
+        distance_info = response.json()
+        rows = distance_info.get('rows', [])
+        elements = rows[0].get('elements', []) if rows else []
+        distance = elements[0].get('distance', {}).get('value', 0) / 1000  # Convert meters to kilometers
+    except Exception as e:
+        flash(f"Could not calculate shipping cost: {e}", 'warning')
+        return base_shipping_cost  # Fallback to base cost
+
+    # Distance-based charges
+    if distance <= 200:
+        distance_cost = 20  # Nearby locations
+    elif distance <= 500:
+        distance_cost = 50  # Medium range
+    else:
+        distance_cost = 100  # Long-distance
+
+    # Weight-based charges
+    if total_weight <= 2:
+        weight_cost = 20  # Flat rate for up to 2 kg
+    else:
+        weight_cost = 20 + (10 * (total_weight - 2))  # ₹10 per kg for additional weight
+
+    # Calculate total shipping cost
+    shipping_cost = base_shipping_cost + weight_cost + distance_cost
+    return shipping_cost
+
+
+
+
+@app.route('/cart')
+@login_required
+def view_cart():
+    cart = Cart.query.filter_by(user_id=current_user.user_id).first()
+    if not cart or not cart.cart_items:
+        flash('Your cart is empty.', 'info')
+        return redirect(url_for('show_products'))
+
+    # Get all cart items
+    cart_items = CartItem.query.filter_by(cart_id=cart.cart_id).all()
+
+    # Calculate total price (sum of quantity * price per product)
+    total_price = sum(item.quantity * item.product.selling_price for item in cart_items)
+
+    # Calculate total weight of all cart items
+    total_weight = sum(item.product.product_weight * item.quantity for item in cart_items)
+
+    # Calculate shipping cost
+    try:
+        total_shipping_cost = calculate_shipping_cost(
+            pincode=current_user.pincode,
+            total_weight=total_weight,
+            country=current_user.country
+        )
+    except Exception as e:
+        flash("Shipping cost could not be calculated. Please check your details.", "danger")
+        total_shipping_cost = 0
+
+    # Total price including shipping
+    total_price_with_shipping = total_price + total_shipping_cost
+
+    return render_template(
+        'cart.html',
+        user=current_user,
+        cart_items=cart_items,
+        total_price=total_price,
+        total_weight=total_weight,
+        shipping_cost=total_shipping_cost,
+        total_price_with_shipping=total_price_with_shipping
+    )
+
+
+
+
+@app.route('/update_cart/<int:item_id>', methods=['POST'])
+@login_required
+def update_cart(item_id):
+    cart_item = CartItem.query.get_or_404(item_id)
+    if cart_item.cart.user_id != current_user.user_id:
+        return jsonify({"success": False, "error": "Unauthorized action."}), 403
+
+    try:
+        new_quantity = int(request.form.get('quantity', 1))
+        if new_quantity < 1:
+            db.session.delete(cart_item)
+            message = "Item removed from cart."
+        else:
+            cart_item.quantity = new_quantity
+            message = "Cart updated."
+
+        db.session.commit()
+        return jsonify({"success": True, "message": message})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+
+
+@app.route('/remove_from_cart/<int:item_id>', methods=['POST'])
+@login_required
+def remove_from_cart(item_id):
+    cart_item = CartItem.query.get_or_404(item_id)
+    if cart_item.cart.user_id != current_user.user_id:
+        flash('Unauthorized action.', 'danger')
+        return redirect(url_for('view_cart'))
+
+    db.session.delete(cart_item)
+    db.session.commit()
+    flash('Item removed from cart.', 'info')
+    return redirect(url_for('view_cart'))
+
+
+
+
+@app.route('/cart_summary', methods=['POST'])
+@login_required
+def cart_summary():
+    cart = Cart.query.filter_by(user_id=current_user.user_id).first()
+    if not cart or not cart.cart_items:
+        return jsonify({'success': False, 'error': 'Cart is empty.'}), 400
+
+    cart_items = CartItem.query.filter_by(cart_id=cart.cart_id).all()
+
+    # Calculate total price and weight
+    total_price = sum(item.quantity * item.product.selling_price for item in cart_items)
+    total_weight = sum(item.product.product_weight * item.quantity for item in cart_items)
+
+    # Calculate shipping cost
+    try:
+        shipping_cost = calculate_shipping_cost(
+            pincode=current_user.pincode,
+            total_weight=total_weight,
+            country=current_user.country
+        )
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+    # Calculate total price with shipping
+    total_price_with_shipping = total_price + shipping_cost
+
+    return jsonify({
+        'success': True,
+        'subtotal': round(total_price, 2),
+        'total_weight': round(total_weight, 2),
+        'shipping_cost': round(shipping_cost, 2),
+        'total_price_with_shipping': round(total_price_with_shipping, 2),
+    })
+
+
+
+
+@app.route('/checkout', methods=['GET', 'POST'])
+@login_required
+def checkout():
+    cart = Cart.query.filter_by(user_id=current_user.user_id).first()
+    if not cart or not cart.cart_items:
+        flash('Your cart is empty. Add some products before checking out.', 'info')
+        return redirect(url_for('show_products'))
+
+    # Check for product availability in stock and purchase limit
+    for cart_item in cart.cart_items:
+        product = cart_item.product
+        if cart_item.quantity > product.stock_quantity:
+            flash(f'Not enough stock for {product.name}. Available stock: {product.stock_quantity}.', 'info')
+            return redirect(url_for('view_cart'))
+        elif cart_item.quantity > 10:
+            flash(f'You cannot purchase more than 10 of {product.name}.', 'info')
+            return redirect(url_for('view_cart'))
+
+    # Calculate total weight for the cart
+    total_weight = sum(item.product.product_weight * item.quantity for item in cart.cart_items)
+
+    # Calculate shipping cost based on total weight
+    shipping_cost = calculate_shipping_cost(
+        pincode=current_user.pincode,
+        total_weight=total_weight,
+        country=current_user.country
+    )
+
+    # Assign courier
+    couriers = User.query.filter_by(role='Courier').all()
+    print(couriers)
+    if not couriers:
+        flash('No couriers are available at the moment. Please try again later.', 'danger')
+        return redirect(url_for('view_cart'))
+    assigned_courier = random.choice(couriers)
+
+    # Create the order
+    total_price = sum(item.quantity * item.product.selling_price for item in cart.cart_items)
+    order = Order(
+        user_id=current_user.user_id,
+        total_price=total_price,
+        status='Picked Up',
+        assigned_to=assigned_courier.user_id,  # Randomly assigned courier
+        address=current_user.address,
+        pincode=current_user.pincode,
+        shipping_cost=shipping_cost,
+        estimated_delivery=datetime.utcnow() + timedelta(days=5)  # Estimated delivery in 5 days
+    )
+    db.session.add(order)
+    db.session.commit()
+
+    # Add items to the order and update stock
+    for cart_item in cart.cart_items:
+        # Update product stock
+        product = cart_item.product
+        product.stock_quantity -= cart_item.quantity
+
+        # Add order items
+        order_item = OrderItem(
+            order_id=order.order_id,
+            product_id=cart_item.product_id,
+            quantity=cart_item.quantity
+        )
+        db.session.add(order_item)
+        db.session.delete(cart_item)  # Remove the item from the cart
+
+    # Empty the cart after checkout
+    db.session.commit()
+
+    flash('Your order has been placed successfully!', 'success')
+    return redirect(url_for('order_details', order_id=order.order_id))
+
+
+
+
+@app.route('/order/<int:order_id>')
+@login_required
+def order_details(order_id):
+    order = Order.query.get_or_404(order_id)
+    if order.user_id != current_user.user_id:
+        flash('Unauthorized access to this order.', 'danger')
+        return redirect(url_for('login'))
+
+    return render_template('order_details.html', order=order)
 
 
 
