@@ -22,6 +22,21 @@ body {
     font-weight: bold;
 }
 
+/* Custom Toast Styles */
+.custom-toast-top {
+    margin-top: 60px !important; /* Adjust gap from top */
+}
+
+.toast {
+    color: white !important; 
+    background-color: #38845a !important; 
+    border: none !important;
+}
+
+.toast-progress {
+    background-color: #ffffff !important; 
+}
+
 
 @media (max-width: 768px) {
     footer {

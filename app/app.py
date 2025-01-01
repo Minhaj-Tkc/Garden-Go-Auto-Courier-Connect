@@ -347,9 +347,11 @@ def remove_from_cart(item_id):
         flash('Unauthorized action.', 'danger')
         return redirect(url_for('view_cart'))
 
+    product_name = cart_item.product.name
+
     db.session.delete(cart_item)
     db.session.commit()
-    flash('Item removed from cart.', 'info')
+    flash(f'{product_name} removed from your cart.', 'info')
     return redirect(url_for('view_cart'))
 
 
@@ -433,7 +435,7 @@ def checkout():
     order = Order(
         user_id=current_user.user_id,
         total_price=total_price,
-        status='Picked Up',
+        status='Pending',
         assigned_to=assigned_courier.user_id,  # Randomly assigned courier
         address=current_user.address,
         pincode=current_user.pincode,
