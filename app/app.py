@@ -3,7 +3,7 @@ from flask import Flask, jsonify, render_template, redirect, url_for, flash, req
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta
-from models import db, User, Category, Product, Cart, CartItem, Order, OrderItem
+from models import db, User, Category, Product, Cart, CartItem, Order, OrderItem, Audit
 from forms import RegistrationForm, LoginForm, ProfileUpdateForm
 import os
 import requests
@@ -191,7 +191,6 @@ def logout():
 @login_required
 def add_to_cart(product_id):
     product = Product.query.get_or_404(product_id)
-    print(product)
 
     # Get the quantity from the form
     quantity = int(request.form['quantity'])
@@ -481,6 +480,22 @@ def order_details(order_id):
     return render_template('order_details.html', order=order)
 
 
+
+@app.route('/order_history')
+@login_required
+def order_history():
+    user_orders = Order.query.filter_by(user_id=current_user.user_id).all()
+    return render_template('order_history.html', orders=user_orders)
+
+
+@app.route('/order_status/<int:order_id>')
+@login_required
+def order_status(order_id):
+    order = Order.query.get_or_404(order_id)
+    if order.user_id != current_user.user_id and current_user.role != "Admin":
+        flash("Unauthorized access", "danger")
+        return redirect(url_for("order_history"))
+    return render_template("order_status.html", order=order)
 
 
 

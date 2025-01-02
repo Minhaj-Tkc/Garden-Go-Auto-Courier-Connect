@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/order_history.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="order-history-wrapper">
+  <h2 class="page-title">Order History</h2>
+  <div class="search-bar">
+    <input 
+      type="text" 
+      id="orderSearch" 
+      class="search-input" 
+      placeholder="Search by Order ID, Items, or Address" 
+      onkeyup="searchOrders()">
+  </div>
+
+  <div class="order-table-container">
+    <table class="order-table" id="orderTable">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Items</th>
+          <th>Quantity</th>
+          <th>Price (₹)</th>
+          <th>Delivery</th>
+          <th>Address</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td>#00{{ order.order_id }}</td>
+          <td>
+            {% for item in order.order_items %}
+              <span class="item-badge">{{ item.product.name }}</span>
+            {% endfor %}
+          </td>
+          <td>
+            {% for item in order.order_items %}
+              <span>{{ item.quantity }}</span>
+            {% endfor %}
+          </td>
+          <td>{{ order.total_price }}</td>
+          <td>{{ order.estimated_delivery.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{{ order.address }}</td>
+          <td>
+            <a href="{{ url_for('order_status', order_id=order.order_id) }}" class="status-badge {{ order.status | lower }}">
+              {{ order.status }}
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/order_history.js') }}"></script>
+{% endblock %}
