@@ -29,7 +29,7 @@
     
           {% if product.stock_quantity > 0 %}
           <form
-            action="{{ url_for('home', product_id=product.product_id) }}"
+            action="{{ url_for('add_to_cart', product_id=product.product_id) }}"
             method="POST"
             class="add-to-cart-form"
           >

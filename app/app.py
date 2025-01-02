@@ -68,7 +68,7 @@ def login():
             elif user.role == 'Courier':
                 return redirect(url_for('courier_dashboard'))
             else:
-                return redirect(url_for('home'))
+                return redirect(url_for('dashboard'))
 
         flash('Invalid email or password', 'danger')
     return render_template('login.html', form=form)
@@ -191,6 +191,7 @@ def logout():
 @login_required
 def add_to_cart(product_id):
     product = Product.query.get_or_404(product_id)
+    print(product)
 
     # Get the quantity from the form
     quantity = int(request.form['quantity'])
