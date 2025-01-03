@@ -1,0 +1,55 @@
+#courier-container {
+    min-height: calc(100vh - 146px);
+}
+
+
+/* General Responsive Styles */
+@media (max-width: 768px) {
+    .table-responsive table th,
+    .table-responsive table td {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  
+    /* Adjust table columns for mobile view */
+    .table-responsive {
+      font-size: 0.9rem;
+    }
+  
+    /* Stack search and filter for small screens */
+    .row.mb-3 {
+      flex-direction: column;
+    }
+  
+    .col-md-6 {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  
+    /* Buttons and selects */
+    .d-flex.flex-wrap {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .d-flex.flex-wrap select {
+      margin-bottom: 10px;
+    }
+  
+    .d-flex.flex-wrap button {
+      width: 100%;
+    }
+  }
+  
+  /* Table Alternating Row Colors for Clarity */
+  .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Table Header Styling */
+  .table-dark {
+    background-color: #343a40;
+    color: #fff;
+  }
+  

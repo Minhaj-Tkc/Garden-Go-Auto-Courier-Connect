@@ -1,5 +1,5 @@
 import random
-from flask import Flask, jsonify, render_template, redirect, url_for, flash, request
+from flask import Flask, abort, jsonify, render_template, redirect, url_for, flash, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta
@@ -66,7 +66,7 @@ def login():
             if user.role == 'Admin':
                 return redirect(url_for('admin_dashboard'))
             elif user.role == 'Courier':
-                return redirect(url_for('courier_dashboard'))
+                return redirect(url_for('dashboard'))
             else:
                 return redirect(url_for('dashboard'))
 
@@ -91,13 +91,13 @@ def update_profile(user_id):
             # Update common fields
             user.name = form.name.data
             user.phone_number = form.phone_number.data
+            user.country = form.country.data
+            user.region = form.region.data
 
             # Update role-specific fields
             if user.role == 'Customer':
                 user.address = form.address.data
                 user.pincode = form.pincode.data
-                user.country = form.country.data
-                user.region = form.region.data
             elif user.role == 'Courier':
                 user.vehicle_info = form.vehicle_info.data
                 user.vehicle_number = form.vehicle_number.data
@@ -125,10 +125,42 @@ def dashboard():
     elif current_user.role == 'Courier':
         return redirect(url_for('courier_dashboard'))
     elif current_user.role == 'Admin':
-        return redirect(url_for('admin_dashboard'))
+        return redirect(url_for('admin_dashboard.html'))
     else:
         flash('Unknown role.', 'danger')
         return redirect(url_for('logout'))
+    
+
+
+
+@app.route('/courier_dashboard')
+@login_required
+def courier_dashboard():
+    if current_user.role != 'Courier':
+        abort(403)  # Forbidden for non-couriers
+    assigned_orders = Order.query.filter_by(assigned_to=current_user.user_id).all()
+    return render_template('courier_dashboard.html', assigned_orders=assigned_orders)
+
+
+@app.route('/update_status/<int:order_id>', methods=['POST'])
+@login_required
+def update_status(order_id):
+    if current_user.role != 'Courier':
+        abort(403)
+
+    order = Order.query.filter_by(order_id=order_id, assigned_to=current_user.user_id).first()
+
+    if not order:
+        return jsonify({'error': 'Order not found or unauthorized access'}), 404
+
+    new_status = request.json.get('status')
+    if new_status not in ['Pending', 'Picked Up', 'In Transit', 'Out for Delivery', 'Delivered', 'Failed Delivery']:
+        return jsonify({'error': 'Invalid status value'}), 400
+
+    order.status = new_status
+    db.session.commit()
+    return jsonify({'message': 'Order status updated successfully', 'order_id': order_id, 'new_status': new_status})
+
 
 
 @app.route('/show_products', methods=['GET'])
@@ -188,8 +220,12 @@ def logout():
 
 
 @app.route('/add_to_cart/<int:product_id>', methods=['POST'])
-@login_required
 def add_to_cart(product_id):
+
+    if not current_user.is_authenticated:
+        flash('You need to log in to add items to your cart.', 'warning')  # Flash a warning message
+        return redirect(url_for('login'))  # Redirect to the login page
+    
     product = Product.query.get_or_404(product_id)
 
     # Get the quantity from the form

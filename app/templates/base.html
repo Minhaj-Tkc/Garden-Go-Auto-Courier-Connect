@@ -45,7 +45,7 @@
             <ul class="navbar-nav ms-auto">
               {% if not current_user.is_authenticated %}
               <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('home') }}"
+                <a class="nav-link active" href="{{ url_for('show_products') }}"
                   >Products</a
                 >
               </li>
@@ -72,16 +72,15 @@
               </li>
               {% elif current_user.role == 'Courier' %}
               <li class="nav-item">
-                <a
-                  class="nav-link active"
-                  href="{{ url_for('home', user_id=current_user.id) }}"
-                  >Edit Profile</a
+                <a class="nav-link active" href="{{ url_for('dashboard') }}"
+                  >Courier Dashboard</a
                 >
               </li>
               <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('home') }}"
-                  >Courier Dashboard</a
-                >
+                <a class="nav-link active" href="{{ url_for('update_profile', user_id=current_user.user_id) }}">Profile</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="{{ url_for('logout') }}">Logout</a>
               </li>
               {% else %}
               <li class="nav-item">

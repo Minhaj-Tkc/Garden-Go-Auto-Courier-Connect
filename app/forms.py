@@ -23,8 +23,8 @@ class ProfileUpdateForm(FlaskForm):
     phone_number = StringField('Phone', validators=[DataRequired(), Length(min=10, max=15)])
     
     # New fields
-    country = StringField('Country', validators=[DataRequired(), Length(max=100)])
-    region = SelectField('Region', choices=[('East', 'East'), ('West', 'West'), ('North', 'North'), ('South', 'South')], validators=[DataRequired()])
+    country = StringField('Country', validators=[Optional(), Length(max=100)])
+    region = SelectField('Region', choices=[('East', 'East'), ('West', 'West'), ('North', 'North'), ('South', 'South')], validators=[Optional()])
 
     # Customer-specific fields
     address = TextAreaField('Address', validators=[Length(max=250)])

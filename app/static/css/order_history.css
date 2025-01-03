@@ -1,4 +1,7 @@
 /* Order History Styles */
+.clickable-row {
+  cursor: pointer;
+}
 
 .order-history-wrapper {
     padding: 2rem;
