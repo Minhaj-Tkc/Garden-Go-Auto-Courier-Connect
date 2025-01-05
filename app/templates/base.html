@@ -61,13 +61,13 @@
               </li>
               {% else %} {% if current_user.role == 'Admin' %}
               <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('home') }}"
+                <a class="nav-link active" href="{{ url_for('admin.dashboard') }}"
                   >Admin Dashboard</a
                 >
               </li>
               <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('home') }}"
-                  >Add New Product</a
+                <a class="nav-link active" href="{{ url_for('logout') }}"
+                  >Logout</a
                 >
               </li>
               {% elif current_user.role == 'Courier' %}

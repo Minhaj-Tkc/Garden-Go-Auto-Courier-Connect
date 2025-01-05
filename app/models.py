@@ -20,7 +20,7 @@ class User(db.Model, UserMixin):
     phone_number = db.Column(db.String(15))
     pincode = db.Column(db.String(10))
     region = db.Column(db.String(50))
-    country = db.Column(db.String(50))
+    country = db.Column(db.String(50), default="India")
     vehicle_info = db.Column(db.String(150))
     vehicle_number = db.Column(db.String(50))
 

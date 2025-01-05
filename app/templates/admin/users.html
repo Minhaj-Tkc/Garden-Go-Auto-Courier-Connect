@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin/users.css') }}"
+/>
+{% endblock %}
+
+{% block content %}
+<div class="users-container">
+    <h1 class="page-title">Manage Users</h1>
+    <div class="summary-cards">
+        <div class="card">
+            <h2>Total Users</h2>
+            <p>{{ customers|length + couriers|length }}</p>
+        </div>
+        <div class="card">
+            <h2>Total Customers</h2>
+            <p>{{ customers|length }}</p>
+        </div>
+        <div class="card">
+            <h2>Total Couriers</h2>
+            <p>{{ couriers|length }}</p>
+        </div>
+    </div>
+    <div class="actions">
+        <a href="{{ url_for('admin.create_user') }}" class="btn btn-primary">Add New User</a>
+    </div>
+    <div class="table-container">
+        <h2>Customers</h2>
+        <table class="responsive-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in customers %}
+                <tr>
+                    <td>{{ user.user_id }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.phone_number }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.update_user', user_id=user.user_id) }}" class="btn edit-btn">Edit</a>
+                        <form action="{{ url_for('admin.delete_user', user_id=user.user_id) }}" method="POST" class="inline-form">
+                            <button type="submit" class="btn delete-btn">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Couriers</h2>
+        <table class="responsive-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Vehicle Info</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in couriers %}
+                <tr>
+                    <td>{{ user.user_id }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.phone_number }}</td>
+                    <td>{{ user.vehicle_info }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.update_user', user_id=user.user_id) }}" class="btn edit-btn">Edit</a>
+                        <form action="{{ url_for('admin.delete_user', user_id=user.user_id) }}" method="POST" class="inline-form">
+                            <button type="submit" class="btn delete-btn">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -7,12 +7,17 @@ from models import db, User, Category, Product, Cart, CartItem, Order, OrderItem
 from forms import RegistrationForm, LoginForm, ProfileUpdateForm
 import os
 import requests
+from admin import admin_bp
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///garden_go.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+
+# Register blueprints
+app.register_blueprint(admin_bp)
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -64,7 +69,7 @@ def login():
 
             # Redirect based on user role
             if user.role == 'Admin':
-                return redirect(url_for('admin_dashboard'))
+                return redirect(url_for('admin.dashboard'))
             elif user.role == 'Courier':
                 return redirect(url_for('dashboard'))
             else:

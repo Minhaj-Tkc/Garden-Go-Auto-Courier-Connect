@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin/user_form.css') }}"
+/>
+{% endblock %}
+
+{% block content %}
+<div class="user-form-container">
+<div class="form-container">
+    <h1 class="form-title">{{ action }} User</h1>
+    <form method="POST" id="userForm" class="user-form">
+        {{ form.hidden_tag() }}
+        <div class="form-row">
+            <div class="form-group">
+                {{ form.name.label }}
+                {{ form.name(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.email.label }}
+                {{ form.email(class="form-control") }}
+            </div>
+        </div>
+        {% if action == 'Create' %}
+        <div class="form-row">
+            <div class="form-group">
+                {{ form.password.label }}
+                {{ form.password(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.confirm_password.label }}
+                {{ form.confirm_password(class="form-control") }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                {{ form.role.label }}
+                {{ form.role(class="form-control") }}
+            </div>
+        </div>
+        {% endif %}
+       
+
+        {% if action != 'Create' %}
+        <div class="form-row">
+            <div class="form-group">
+                {{ form.phone_number.label }}
+                {{ form.phone_number(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.role.label }}
+                {{ form.role(class="form-control") }}
+            </div>
+        </div>
+        <div class="form-row customer-fields">
+            <div class="form-group">
+                {{ form.country.label }}
+                {{ form.country(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.region.label }}
+                {{ form.region(class="form-control") }}
+            </div>
+        </div>
+        <div class="form-row courier-fields">
+            <div class="form-group">
+                {{ form.vehicle_info.label }}
+                {{ form.vehicle_info(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.vehicle_number.label }}
+                {{ form.vehicle_number(class="form-control") }}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{{ action }}</button>
+            <a href="{{ url_for('admin.list_users') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+</div>
+
+<script>
+    const roleField = document.querySelector('#{{ form.role.id }}');
+    const customerFields = document.querySelector('.customer-fields');
+    const courierFields = document.querySelector('.courier-fields');
+
+    function toggleFields() {
+        if (roleField.value === 'Courier') {
+            customerFields.style.display = 'none';
+            courierFields.style.display = 'block';
+        } else {
+            customerFields.style.display = 'flex';
+            courierFields.style.display = 'none';
+        }
+    }
+
+    roleField.addEventListener('change', toggleFields);
+    toggleFields();
+</script>
+{% endblock %}
