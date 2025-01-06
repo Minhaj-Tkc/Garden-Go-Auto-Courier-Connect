@@ -3,6 +3,12 @@
 }
 
 
+/* Custom margin for Toastr messages */
+#toast-container > .toast {
+  margin-top: 60px !important;
+}
+
+
 /* General Responsive Styles */
 @media (max-width: 768px) {
     .table-responsive table th,

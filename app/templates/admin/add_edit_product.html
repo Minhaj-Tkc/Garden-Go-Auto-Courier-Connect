@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/add_product.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="form-wrapper">
+    <h1 class="form-title">{{ 'Edit Product' if edit else 'Add New Product' }}</h1>
+    <form method="POST" action="" enctype="multipart/form-data" class="form-container">
+        <div class="form-group">
+            <label for="name">Product Name:</label>
+            <input type="text" id="name" name="name" value="{{ product.name if edit else '' }}" required placeholder="Enter product name">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required placeholder="Enter product description">{{ product.description if edit else '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="cost_price">Cost Price:</label>
+            <input type="number" id="cost_price" name="cost_price" step="0.01" value="{{ product.cost_price if edit else '' }}" required placeholder="Enter cost price">
+        </div>
+
+        <div class="form-group">
+            <label for="selling_price">Selling Price:</label>
+            <input type="number" id="selling_price" name="selling_price" step="0.01" value="{{ product.selling_price if edit else '' }}" required placeholder="Enter selling price">
+        </div>
+
+        <div class="form-group">
+            <label for="quantity">Stock Quantity:</label>
+            <input type="number" id="quantity" name="quantity" value="{{ product.stock_quantity if edit else '' }}" required placeholder="Enter quantity">
+        </div>
+
+        <div class="form-group">
+            <label for="product_weight">Product Weight:</label>
+            <input type="floatformat" id="product_weight" name="product_weight" value="{{ product.product_weight if edit else '' }}" required placeholder="Enter product weight">
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                <option value="" disabled>Select a category</option>
+                {% for category in categories %}
+                <option value="{{ category.category_id }}" {% if edit and category.category_id == product.category_id %}selected{% endif %}>{{ category.category_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="image_option">Image Option:</label>
+            <select id="image_option" name="image_option" onchange="toggleImageInput()" required>
+                <option value="" disabled>Select an image option</option>
+                <option value="url" {% if edit and product.image_url and not product.image_url.startswith('static/uploads') %}selected{% endif %}>URL</option>
+                <option value="file" {% if edit and product.image_url and product.image_url.startswith('static/uploads') %}selected{% endif %}>File Upload</option>
+            </select>
+        </div>
+
+        <div id="image_url_div" class="form-group" style="display: {% if edit and product.image_url and not product.image_url.startswith('static/uploads') %}block{% else %}none{% endif %};">
+            <label for="image_url">Product Image URL:</label>
+            <input type="text" id="image_url" name="image_url" value="{{ product.image_url if edit and not product.image_url.startswith('static/uploads') else '' }}" placeholder="Enter image URL">
+        </div>
+
+        <div id="image_file_div" class="form-group" style="display: {% if edit and product.image_url and product.image_url.startswith('static/uploads') %}block{% else %}none{% endif %};">
+            <label for="image_file">Upload Product Image:</label>
+            <input type="file" id="image_file" name="image_file" accept="image/*">
+        </div>
+
+        <button type="submit" class="form-submit">{{ 'Update Product' if edit else 'Add Product' }}</button>
+    </form>
+</main>
+
+<script>
+    function toggleImageInput() {
+        const imageOption = document.getElementById('image_option').value;
+        const urlDiv = document.getElementById('image_url_div');
+        const fileDiv = document.getElementById('image_file_div');
+
+        if (imageOption === 'url') {
+            urlDiv.style.display = 'block';
+            fileDiv.style.display = 'none';
+        } else if (imageOption === 'file') {
+            urlDiv.style.display = 'none';
+            fileDiv.style.display = 'block';
+        } else {
+            urlDiv.style.display = 'none';
+            fileDiv.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

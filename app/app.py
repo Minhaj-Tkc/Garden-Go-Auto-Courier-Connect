@@ -3,7 +3,7 @@ from flask import Flask, abort, jsonify, render_template, redirect, url_for, fla
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta
-from models import db, User, Category, Product, Cart, CartItem, Order, OrderItem, Audit
+from models import db, User, Category, Product, Cart, CartItem, Order, OrderItem
 from forms import RegistrationForm, LoginForm, ProfileUpdateForm
 import os
 import requests
@@ -74,8 +74,7 @@ def login():
                 return redirect(url_for('dashboard'))
             else:
                 return redirect(url_for('dashboard'))
-
-        flash('Invalid email or password', 'danger')
+        flash('Invalid email or password', 'info')
     return render_template('login.html', form=form)
 
 
@@ -85,7 +84,7 @@ def update_profile(user_id):
     user = User.query.get_or_404(user_id)
 
     if user != current_user and not current_user.is_admin:
-        flash('You do not have permission to edit this profile.', 'danger')
+        flash('You do not have permission to edit this profile.', 'info')
         return redirect(url_for('home'))
 
     form = ProfileUpdateForm(obj=user)
@@ -117,7 +116,7 @@ def update_profile(user_id):
             return redirect(referrer or url_for('home'))
         except Exception as e:
             db.session.rollback()
-            flash(f'An error occurred: {e}', 'danger')
+            flash(f'An error occurred: {e}', 'info')
 
     return render_template('edit_profile.html', form=form, user=user, next=referrer)
 
@@ -336,7 +335,7 @@ def view_cart():
             country=current_user.country
         )
     except Exception as e:
-        flash("Shipping cost could not be calculated. Please check your details.", "danger")
+        flash("Shipping cost could not be calculated. Please check your details.", "info")
         total_shipping_cost = 0
 
     # Total price including shipping
@@ -467,7 +466,7 @@ def checkout():
     couriers = User.query.filter_by(role='Courier').all()
     print(couriers)
     if not couriers:
-        flash('No couriers are available at the moment. Please try again later.', 'danger')
+        flash('No couriers are available at the moment. Please try again later.', 'info')
         return redirect(url_for('view_cart'))
     assigned_courier = random.choice(couriers)
 
@@ -515,7 +514,7 @@ def checkout():
 def order_details(order_id):
     order = Order.query.get_or_404(order_id)
     if order.user_id != current_user.user_id:
-        flash('Unauthorized access to this order.', 'danger')
+        flash('Unauthorized access to this order.', 'info')
         return redirect(url_for('login'))
 
     return render_template('order_details.html', order=order)
@@ -534,7 +533,7 @@ def order_history():
 def order_status(order_id):
     order = Order.query.get_or_404(order_id)
     if order.user_id != current_user.user_id and current_user.role != "Admin":
-        flash("Unauthorized access", "danger")
+        flash("Unauthorized access", "info")
         return redirect(url_for("order_history"))
     return render_template("order_status.html", order=order)
 

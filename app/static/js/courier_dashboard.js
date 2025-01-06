@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
               // Reload the page after a successful update
               setTimeout(() => {
                 window.location.reload();
-              }, 1000); // Optional delay for user feedback
+              }, 2000); // Optional delay for user feedback
             } else {
               toastr.error('Failed to update order status.');
             }
