@@ -1,0 +1,58 @@
+/* General styling for the table */
+
+.admin-orders-container {
+    padding: 50px;
+    min-height: calc(100vh - 146px);
+}
+
+.table-hover tr:hover {
+    background-color: #f9f9f9; /* Subtle background change on hover */
+}
+
+.table thead th {
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* Center table content for better alignment */
+.table tbody td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* Styling for the badges (status labels) */
+.badge {
+    font-size: 0.9rem;
+    padding: 0.4em 0.8em;
+}
+
+/* Button customizations */
+.btn-outline-primary {
+    border-color: #007bff;
+    color: #007bff;
+}
+.btn-outline-primary:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* Modal customizations */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+.modal-title {
+    font-weight: bold;
+}
+.modal-footer .btn {
+    padding: 0.6rem 1.2rem;
+}

@@ -1,6 +1,8 @@
+from datetime import datetime
 import os
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models import Category, db, User, Product, Order
+from flask import Blueprint, jsonify, render_template, request, redirect, url_for, flash
+from sqlalchemy import func
+from models import Category, OrderItem, db, User, Product, Order
 
 from forms import RegistrationForm, AdminProfileUpdateForm, ProductForm
 from werkzeug.security import generate_password_hash
@@ -24,6 +26,7 @@ def list_users():
     couriers = User.query.filter_by(role="Courier").all()
     return render_template('admin/users.html', customers=customers, couriers=couriers)
 
+
 # Route to create a new user
 @admin_bp.route('/users/create', methods=['GET', 'POST'])
 @login_required
@@ -41,6 +44,7 @@ def create_user():
         flash("User created successfully!", "success")
         return redirect(url_for('admin.list_users'))
     return render_template('admin/user_form.html', form=form, action="Create")
+
 
 # Route to update a user
 @admin_bp.route('/users/update/<int:user_id>', methods=['GET', 'POST'])
@@ -65,6 +69,7 @@ def update_user(user_id):
 
     return render_template('admin/user_form.html', form=form, action="Update")
 
+
 # Route to delete a user
 @admin_bp.route('/users/delete/<int:user_id>', methods=['POST'])
 @login_required
@@ -76,13 +81,12 @@ def delete_user(user_id):
     return redirect(url_for('admin.list_users'))
 
 
-
-
 @admin_bp.route('/products', methods=['GET'])
 def list_products():
     products = Product.query.all()
     categories = Category.query.all()
     return render_template('admin/manage_products.html', products=products, categories=categories)
+
 
 @admin_bp.route('/products/add', methods=['GET', 'POST'])
 @login_required
@@ -167,24 +171,6 @@ def edit_product(product_id):
     return render_template('admin/add_edit_product.html', product=product, categories=categories, edit=True)
 
 
-# @admin_bp.route('/products/edit/<int:product_id>', methods=['GET', 'POST'])
-# def edit_product(product_id):
-#     product = Product.query.get_or_404(product_id)
-#     form = ProductForm(obj=product)
-#     if form.validate_on_submit():
-#         product.name = form.name.data
-#         product.cost_price = form.cost_price.data
-#         product.selling_price = form.selling_price.data
-#         product.description = form.description.data
-#         product.stock_quantity = form.stock_quantity.data
-#         product.image_url = form.image_url.data
-#         product.product_weight = form.product_weight.data
-#         product.category_id = form.category_id.data
-#         db.session.commit()
-#         flash('Product updated successfully!', 'success')
-#         return redirect(url_for('list_products'))
-#     return render_template('edit_product.html', form=form, product=product)
-
 @admin_bp.route('/products/delete/<int:product_id>', methods=['POST'])
 def delete_product(product_id):
     product = Product.query.get_or_404(product_id)
@@ -194,13 +180,106 @@ def delete_product(product_id):
     return redirect(url_for('admin.list_products'))
 
 
-@admin_bp.route('/orders')
-def manage_orders():
-    orders = Order.query.all()
-    return render_template('admin/orders.html', orders=orders)
+@admin_bp.route('/admin/orders')
+@login_required  # Ensure only logged-in users can access
+def admin_orders():
+    orders = Order.query.order_by(Order.created_at.desc()).all()
+    return render_template('admin/admin_orders.html', orders=orders)
+
+
+@admin_bp.route('/admin/orders/update/<int:order_id>', methods=['POST'])
+@login_required
+def update_order(order_id):
+    order = Order.query.get(order_id)
+    if not order:
+        flash("Order not found", "danger")
+        return redirect(url_for('admin_orders'))
+
+    order.status = request.form.get('status', order.status)
+    order.assigned_to = request.form.get('assigned_to', order.assigned_to)
+    order.updated_at = datetime.utcnow()
+    db.session.commit()
+    flash("Order updated successfully", "success")
+    return redirect(url_for('admin.admin_orders'))
+
+
+@admin_bp.route('/admin/orders/delete/<int:order_id>', methods=['POST'])
+@login_required
+def delete_order(order_id):
+    order = Order.query.get(order_id)
+    if not order:
+        flash("Order not found", "info")
+        return redirect(url_for('admin_orders'))
+    db.session.delete(order)
+    db.session.commit()
+    flash("Order deleted successfully", "success")
+    return redirect(url_for('admin.admin_orders'))
+
+
+# @admin_bp.route('/analytics')
+# def analytics():
+#     return render_template('admin/analytics.html')
+
 
 @admin_bp.route('/analytics')
 def analytics():
-    # Add any logic for analytics or load a static page.
-    return render_template('admin/analytics.html')
+    # Total sales calculation
+    total_sales = db.session.query(func.sum(Order.total_price)).scalar() or 0.0
+
+    
+    # Total profit calculation
+    total_profit = (
+        db.session.query(
+            func.sum((Product.selling_price - Product.cost_price) * OrderItem.quantity)
+        )
+        .select_from(OrderItem)  # Explicitly set the starting point of the join
+        .join(Product, Product.product_id == OrderItem.product_id)  # Explicit ON clause
+        .scalar()
+        or 0.0
+    )
+
+
+    # Average sales calculation
+    avg_sales = db.session.query(func.avg(Order.total_price)).scalar() or 0.0
+
+    # Product availability
+    product_availability = db.session.query(Product.name, Product.stock_quantity).all()
+
+    # Total products sold grouped by categories
+    products_sold = (
+        db.session.query(Category.category_name, func.sum(OrderItem.quantity))
+        .join(Product, Product.category_id == Category.category_id)
+        .join(OrderItem, OrderItem.product_id == Product.product_id)
+        .group_by(Category.category_name)
+        .all()
+    )
+
+    return render_template(
+        'admin/analytics.html',
+        total_sales=total_sales,
+        total_profit=total_profit,
+        avg_sales=avg_sales,
+        product_availability=product_availability,
+        products_sold=products_sold
+    )
+
+@admin_bp.route('/api/product_data')
+def get_product_data():
+    # Fetching product data for charts
+    print("fhfjfhfhf ff")
+    product_data = {
+        "product_availability": [
+            {"name": name, "stock": stock} for name, stock in db.session.query(Product.name, Product.stock_quantity).all()
+        ],
+        "products_sold": [
+            {"category": category, "quantity": quantity}
+            for category, quantity in db.session.query(Category.category_name, func.sum(OrderItem.quantity))
+            .join(Product, Product.category_id == Category.category_id)
+            .join(OrderItem, OrderItem.product_id == Product.product_id)
+            .group_by(Category.category_name)
+            .all()
+        ],
+    }
+    return jsonify(product_data)
+
 

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin/admin_orders.css') }}"
+/>
+{% endblock %}
+
+{% block content %}
+<div class="admin-orders-container">
+    <div class="container">
+        <h1 class="mb-4">Manage Orders</h1>
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>Shipping Cost</th>
+                    <th>Total Price</th>
+                    <th>Courier Id</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.order_id }}</td>
+                    <td>{{ order.user.name if order.user else "N/A" }}</td>
+                    <td>
+                        <span class="badge bg-{{ 'warning' if order.status == 'Pending' else 'info' if order.status == 'Processing' else 'success' }}">
+                            {{ order.status }}
+                        </span>
+                    </td>
+                    <td>₹{{ "%.2f"|format(order.shipping_cost) }}</td>
+                    <td>₹{{ "%.2f"|format(order.total_price) }}</td>
+                    <td>{{ order.assigned_to if order.assigned_to else "N/A" }}</td>
+                    <td>{{ order.created_at.strftime('%d-%m-%Y | %H:%M:%S') }}</td>
+                    <td>
+                        <button 
+                            class="btn btn-outline-primary btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#updateModal{{ order.order_id }}">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </button>
+                        <form 
+                            method="post" 
+                            action="{{ url_for('admin.delete_order', order_id=order.order_id) }}" 
+                            class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+                <!-- Update Modal -->
+                <div 
+                    class="modal fade" 
+                    id="updateModal{{ order.order_id }}" 
+                    tabindex="-1" 
+                    aria-labelledby="updateModalLabel{{ order.order_id }}" 
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form 
+                                method="post" 
+                                action="{{ url_for('admin.update_order', order_id=order.order_id) }}">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="updateModalLabel{{ order.order_id }}">
+                                        Update Order {{ order.order_id }}
+                                    </h5>
+                                    <button 
+                                        type="button" 
+                                        class="btn-close" 
+                                        data-bs-dismiss="modal" 
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="status{{ order.order_id }}" class="form-label">Status</label>
+                                        <select name="status" id="status{{ order.order_id }}" class="form-select">
+                                            <option value="Pending" {% if order.status == "Pending" %}selected{% endif %}>Pending</option>
+                                            <option value="Picked Up" {% if order.status == "Picked Up" %}selected{% endif %}>Picked Up</option>
+                                            <option value="Processing" {% if order.status == "Processing" %}selected{% endif %}>Processing</option>
+                                            <option value="Delivered" {% if order.status == "Delivered" %}selected{% endif %}>Delivered</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="assigned_to{{ order.order_id }}" class="form-label">Assigned To</label>
+                                        <input 
+                                            type="text" 
+                                            name="assigned_to" 
+                                            id="assigned_to{{ order.order_id }}" 
+                                            class="form-control" 
+                                            value="{{ order.assigned_to }}">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

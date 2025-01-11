@@ -10,13 +10,15 @@ from dotenv import load_dotenv
 import requests
 from admin import admin_bp
 
+# Load environment variables
+load_dotenv()
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///garden_go.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
-load_dotenv()
 
 # Register blueprints
 app.register_blueprint(admin_bp)

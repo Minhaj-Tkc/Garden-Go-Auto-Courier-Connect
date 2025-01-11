@@ -112,7 +112,6 @@ class Order(db.Model):
     user = db.relationship('User', foreign_keys=[user_id], back_populates='orders')  # Updated
     assigned_user = db.relationship('User', foreign_keys=[assigned_to], back_populates='assigned_orders')  # New relationship
     order_items = db.relationship('OrderItem', back_populates='order')
-    # audit_logs = db.relationship('Audit', back_populates='order')
 
 class OrderItem(db.Model):
     __tablename__ = 'order_item'
@@ -123,17 +122,6 @@ class OrderItem(db.Model):
 
     order = db.relationship('Order', back_populates='order_items')
     product = db.relationship('Product', back_populates='order_items')
-
-# class Audit(db.Model):
-#     __tablename__ = 'audit'
-#     record_id = db.Column(db.Integer, primary_key=True)
-#     order_id = db.Column(db.Integer, db.ForeignKey('order.order_id'))
-#     status = db.Column(db.String, nullable=False)
-#     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-#     updated_by = db.Column(db.String, nullable=False)
-#     reason = db.Column(db.String)
-
-#     order = db.relationship('Order', back_populates='audit_logs')
 
 class Subscription(db.Model):
     __tablename__ = 'subscription'
