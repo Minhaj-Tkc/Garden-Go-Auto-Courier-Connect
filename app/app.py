@@ -6,14 +6,17 @@ from datetime import datetime, timedelta
 from models import db, User, Category, Product, Cart, CartItem, Order, OrderItem
 from forms import RegistrationForm, LoginForm, ProfileUpdateForm
 import os
+from dotenv import load_dotenv
 import requests
 from admin import admin_bp
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///garden_go.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+
+load_dotenv()
 
 # Register blueprints
 app.register_blueprint(admin_bp)
@@ -271,7 +274,7 @@ def calculate_shipping_cost(pincode, total_weight, country):
 
     # Using Google Maps Distance Matrix API
     try:
-        api_key = "AIzaSyAv44pEZqLcd3Tck0ppI4TgTsAVetKeVfc"  
+        api_key = os.getenv('API_KEY')
         response = requests.get(
             "https://maps.googleapis.com/maps/api/distancematrix/json",
             params={
