@@ -3,12 +3,15 @@ from flask import Flask, abort, jsonify, render_template, redirect, url_for, fla
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta
-from models import db, User, Category, Product, Cart, CartItem, Order, OrderItem
+from models import db, User, Category, Product, Cart, CartItem, Order, OrderItem, PasswordReset
 from forms import RegistrationForm, LoginForm, ProfileUpdateForm
 import os
 from dotenv import load_dotenv
 import requests
 from admin import admin_bp
+
+from flask_mail import Mail, Message
+import uuid
 
 # Load environment variables
 load_dotenv()
@@ -17,8 +20,18 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///garden_go.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db.init_app(app)
 
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL') == 'True'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+
+mail = Mail(app)
+db.init_app(app)
 
 # Register blueprints
 app.register_blueprint(admin_bp)
@@ -27,7 +40,6 @@ app.register_blueprint(admin_bp)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -126,6 +138,61 @@ def update_profile(user_id):
     return render_template('edit_profile.html', form=form, user=user, next=referrer)
 
 
+@app.route('/forget-password', methods=['GET', 'POST'])
+def forget_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+
+        if user:
+            # Generate unique token
+            token = str(uuid.uuid4())
+            reset_entry = PasswordReset(
+                user_id=user.user_id,
+                ptoken=token,
+                expires_at=datetime.utcnow() + timedelta(hours=1)
+            )
+            db.session.add(reset_entry)
+            db.session.commit()
+
+            # Send email
+            reset_url = url_for('reset_password', token=token, _external=True)
+            msg = Message(
+                subject="Password Reset Request",
+                recipients=[email],
+                body=f"Click the link to reset your password: {reset_url}"
+            )
+            mail.send(msg)
+            flash("Password reset link has been sent to your email.", "info")
+        else:
+            flash("Email not found. Enter registered email", "info")
+
+        return redirect(url_for('forget_password'))
+
+    return render_template('forget_password.html')
+
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    reset_entry = PasswordReset.query.filter_by(ptoken=token).first()
+
+    if not reset_entry or reset_entry.expires_at < datetime.utcnow():
+        flash("Invalid or expired token!", "info")
+        return redirect(url_for('forget_password'))
+
+    if request.method == 'POST':
+        password = request.form.get('password')
+        user = reset_entry.user
+        user.set_password(password)  
+        db.session.delete(reset_entry)
+        db.session.commit()
+
+        flash("Password reset successful. You can now log in.", "success")
+        return redirect(url_for('login'))
+
+    return render_template('reset_password.html', token=token)
+
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -136,11 +203,9 @@ def dashboard():
     elif current_user.role == 'Admin':
         return redirect(url_for('admin_dashboard.html'))
     else:
-        flash('Unknown role.', 'danger')
+        flash('Unknown role.', 'info')
         return redirect(url_for('logout'))
     
-
-
 
 @app.route('/courier_dashboard')
 @login_required
@@ -169,7 +234,6 @@ def update_status(order_id):
     order.status = new_status
     db.session.commit()
     return jsonify({'message': 'Order status updated successfully', 'order_id': order_id, 'new_status': new_status})
-
 
 
 @app.route('/show_products', methods=['GET'])
@@ -212,12 +276,6 @@ def product_details(product_id):
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
-
-
-
-@app.route('/reset_password', methods=['GET', 'POST'])
-def reset_password():
-    return "Reset Password Page"
 
 
 @app.route('/logout')
@@ -313,8 +371,6 @@ def calculate_shipping_cost(pincode, total_weight, country):
     return shipping_cost
 
 
-
-
 @app.route('/cart')
 @login_required
 def view_cart():
@@ -357,8 +413,6 @@ def view_cart():
     )
 
 
-
-
 @app.route('/update_cart/<int:item_id>', methods=['POST'])
 @login_required
 def update_cart(item_id):
@@ -382,14 +436,12 @@ def update_cart(item_id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-
-
 @app.route('/remove_from_cart/<int:item_id>', methods=['POST'])
 @login_required
 def remove_from_cart(item_id):
     cart_item = CartItem.query.get_or_404(item_id)
     if cart_item.cart.user_id != current_user.user_id:
-        flash('Unauthorized action.', 'danger')
+        flash('Unauthorized action.', 'info')
         return redirect(url_for('view_cart'))
 
     product_name = cart_item.product.name
@@ -398,8 +450,6 @@ def remove_from_cart(item_id):
     db.session.commit()
     flash(f'{product_name} removed from your cart.', 'info')
     return redirect(url_for('view_cart'))
-
-
 
 
 @app.route('/cart_summary', methods=['POST'])
@@ -435,8 +485,6 @@ def cart_summary():
         'shipping_cost': round(shipping_cost, 2),
         'total_price_with_shipping': round(total_price_with_shipping, 2),
     })
-
-
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
@@ -512,8 +560,6 @@ def checkout():
     return redirect(url_for('order_details', order_id=order.order_id))
 
 
-
-
 @app.route('/order/<int:order_id>')
 @login_required
 def order_details(order_id):
@@ -523,7 +569,6 @@ def order_details(order_id):
         return redirect(url_for('login'))
 
     return render_template('order_details.html', order=order)
-
 
 
 @app.route('/order_history')
@@ -541,7 +586,6 @@ def order_status(order_id):
         flash("Unauthorized access", "info")
         return redirect(url_for("order_history"))
     return render_template("order_status.html", order=order)
-
 
 
 if __name__ == '__main__':
