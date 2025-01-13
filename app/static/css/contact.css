@@ -1,0 +1,4 @@
+.contact-container {
+    min-height: calc(100vh - 146px);
+    padding: 50px;
+}

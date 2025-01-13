@@ -28,8 +28,19 @@
     <header>
       <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
         <div class="container-fluid">
-          <a class="navbar-brand" href="{{ url_for('home') }}"
-            >Garden Go Auto Courier Connect</a
+          <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img
+              src="{{ url_for('static', filename='images/garden-logo.jpg') }}"
+              alt="Garden Logo"
+              style="
+                height: 40px;
+                width: auto;
+                margin-right: 5px;
+                margin-left: 5px;
+                border-radius: 5px;
+              "
+            />
+            <span>Garden Go Auto Courier Connect</span></a
           >
           <button
             class="navbar-toggler"
@@ -62,7 +73,9 @@
               </li>
               {% else %} {% if current_user.role == 'Admin' %}
               <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('admin.dashboard') }}"
+                <a
+                  class="nav-link active"
+                  href="{{ url_for('admin.dashboard') }}"
                   >Admin Dashboard</a
                 >
               </li>
@@ -78,10 +91,16 @@
                 >
               </li>
               <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('update_profile', user_id=current_user.user_id) }}">Profile</a>
+                <a
+                  class="nav-link active"
+                  href="{{ url_for('update_profile', user_id=current_user.user_id) }}"
+                  >Profile</a
+                >
               </li>
               <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('logout') }}">Logout</a>
+                <a class="nav-link active" href="{{ url_for('logout') }}"
+                  >Logout</a
+                >
               </li>
               {% else %}
               <li class="nav-item">
@@ -95,16 +114,16 @@
                 >
               </li>
               <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('view_cart') }}">Cart</a>
+                <a class="nav-link active" href="{{ url_for('view_cart') }}"
+                  >Cart</a
+                >
               </li>
               <li class="nav-item">
                 <a class="nav-link active" href="{{ url_for('logout') }}"
                   >Logout</a
                 >
               </li>
-              {% endif %}
-              
-              {% endif %}
+              {% endif %} {% endif %}
             </ul>
           </div>
         </div>
@@ -117,7 +136,9 @@
     <!-- Footer -->
     <footer style="background-color: #38845a; color: #ffffff" class="py-3">
       <div class="container text-center">
-        <p class="mb-1">&copy; 2025 Garden Go Auto Courier Connect. All rights reserved.</p>
+        <p class="mb-1">
+          &copy; 2025 Garden Go Auto Courier Connect. All rights reserved.
+        </p>
         <p class="mb-0">
           Contact us at
           <a
@@ -131,7 +152,7 @@
     </footer>
 
     <!-- JavaScript -->
-     
+
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

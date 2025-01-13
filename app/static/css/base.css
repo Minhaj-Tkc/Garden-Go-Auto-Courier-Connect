@@ -24,31 +24,36 @@ body {
 
 /* Custom Toast Styles */
 .custom-toast-top {
-    margin-top: 60px !important; /* Adjust gap from top */
+    margin-top: 60px !important;
+    /* Adjust gap from top */
 }
 
 .toast {
-    color: white !important; 
-    background-color: #38845a !important; 
+    color: white !important;
+    background-color: #38845a !important;
     border: none !important;
 }
 
 .toast-progress {
-    background-color: #ffffff !important; 
+    background-color: #ffffff !important;
 }
 
 
-@media (max-width: 768px) {
-    footer {
-        text-align: center;
-        /* Ensure centered alignment on small screens */
+@media (max-width: 728px) {
+    .navbar-brand {
+        display: flex;
+        align-items: center;
     }
-}
 
-@media (max-width: 480px) {
+    .navbar-brand img {
+        display: inline-block;
+    }
 
-    .custom-navbar .navbar-brand {
+    .navbar-brand span {
         display: none;
     }
 
+    footer {
+        text-align: center;
+    }
 }

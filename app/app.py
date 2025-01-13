@@ -273,8 +273,35 @@ def product_details(product_id):
     product = Product.query.get_or_404(product_id)  # Fetch product by ID or return 404
     return render_template('product_details.html', product=product, user=current_user)
 
-@app.route('/contact')
+
+@app.route('/contact', methods=['GET', 'POST'])
 def contact():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        message = request.form.get('message')
+
+        if not name or not email or not message:
+            flash('All fields are required.', 'info')
+            return redirect(url_for('contact'))
+
+        try:
+            # Send email using Flask-Mail
+            msg = Message(
+                subject=f"New Contact Form Submission from {name}",
+                sender=email,
+                recipients=['minhajtkc1@gmail.com'],  
+                body=f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}",
+            )
+            mail.send(msg)
+
+            flash('Your message has been sent successfully!', 'success')
+            return redirect(url_for('contact'))
+        except Exception as e:
+            flash('An error occurred while sending your message. Please try again later.', 'info')
+            print(e)
+            return redirect(url_for('contact'))
+
     return render_template('contact.html')
 
 

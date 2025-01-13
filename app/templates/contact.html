@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/contact.css') }}"
+/>
+{% endblock %}
+
+{% block content %}
+<div class="contact-container">
+    <div class="container">
+    <h1 class="text-center mb-4">Contact Us</h1>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+        <form action="{{ url_for('contact') }}" method="post">
+            <div class="mb-3">
+            <label for="name" class="form-label">Your Name</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="name" 
+                name="name" 
+                placeholder="Enter your name" 
+                required
+            >
+            </div>
+
+            <div class="mb-3">
+            <label for="email" class="form-label">Your Email</label>
+            <input 
+                type="email" 
+                class="form-control" 
+                id="email" 
+                name="email" 
+                placeholder="Enter your email address" 
+                required
+            >
+            </div>
+
+            <div class="mb-3">
+            <label for="message" class="form-label">Message</label>
+            <textarea 
+                class="form-control" 
+                id="message" 
+                name="message" 
+                rows="5" 
+                placeholder="Write your message here..." 
+                required
+            ></textarea>
+            </div>
+
+            <div class="text-center">
+            <button type="submit" class="btn btn-success">Submit</button>
+            </div>
+        </form>
+        </div>
+    </div>
+    </div>
+</div>
+{% endblock %}
