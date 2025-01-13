@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block css %}
 <link
@@ -8,33 +8,119 @@
 {% endblock %}
 
 {% block content %}
-<div class="admin-dashboard">
-    <h1>Admin Dashboard</h1>
-    <div class="card-container">
-        <div class="card">
-            <a href="{{ url_for('admin.list_users') }}">
-                <i class="fa fa-users"></i>
-                <h2>Manage Users</h2>
-            </a>
+<div class="container mt-2">
+    <h2 class="text-center mb-4">Admin Dashboard</h2>
+
+    <!-- Management Section -->
+    <div class="row text-center mt-4 mb-4">
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="summary-card shadow">
+                <h5 class="card-title">Manage Users</h5>
+                <p class="card-description">View and manage all registered users.</p>
+                <a href="{{ url_for('admin.list_users') }}" class="btn btn-primary">Go</a>
+            </div>
         </div>
-        <div class="card">
-            <a href="{{ url_for('admin.list_products') }}">
-                <i class="fa fa-box"></i>
-                <h2>Manage Products</h2>
-            </a>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="summary-card shadow">
+                <h5 class="card-title">Manage Orders</h5>
+                <p class="card-description">View and track all orders.</p>
+                <a href="{{ url_for('admin.admin_orders') }}" class="btn btn-primary">Go</a>
+            </div>
         </div>
-        <div class="card">
-            <a href="{{ url_for('admin.admin_orders') }}">
-                <i class="fa fa-clipboard-list"></i>
-                <h2>Manage Orders</h2>
-            </a>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="summary-card shadow">
+                <h5 class="card-title">Manage Products</h5>
+                <p class="card-description">Add, edit, or delete products.</p>
+                <a href="{{ url_for('admin.list_products') }}" class="btn btn-primary">Go</a>
+            </div>
         </div>
-        <div class="card">
-            <a href="{{ url_for('admin.analytics') }}">
-                <i class="fa fa-chart-line"></i>
-                <h2>Analytics</h2>
-            </a>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="row text-center">
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="summary-card shadow">
+                <h5 class="card-title">Total Sales</h5>
+                <p class="card-value">{{ total_sales }}</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="summary-card shadow">
+                <h5 class="card-title">Total Profit</h5>
+                <p class="card-value">{{ total_profit }}</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="summary-card shadow">
+                <h5 class="card-title">Average Sales</h5>
+                <p class="card-value">{{ avg_sales | round(2) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mt-5">
+        <div class="col-md-6 mb-4">
+            <div class="chart-card shadow">
+                <h4 class="text-center mb-3">Product Availability</h4>
+                <canvas id="product-availability-chart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="chart-card shadow">
+                <h4 class="text-center mb-3">Total Products Sold</h4>
+                <canvas id="products-sold-chart"></canvas>
+            </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    fetch('/admin/api/product_data')
+        .then(response => response.json())
+        .then(data => {
+            const productAvailabilityData = data.product_availability;
+            const productsSoldData = data.products_sold;
+
+            // Product Availability Chart
+            const productAvailabilityCtx = document.getElementById('product-availability-chart').getContext('2d');
+            new Chart(productAvailabilityCtx, {
+                type: 'bar',
+                data: {
+                    labels: productAvailabilityData.map(item => item.name),
+                    datasets: [{
+                        label: 'Stock Quantity',
+                        data: productAvailabilityData.map(item => item.stock),
+                        backgroundColor: '#673ab7'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Products Sold Chart
+            const productsSoldCtx = document.getElementById('products-sold-chart').getContext('2d');
+            new Chart(productsSoldCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: productsSoldData.map(item => item.category),
+                    datasets: [{
+                        data: productsSoldData.map(item => item.quantity),
+                        backgroundColor: ['#4caf50', '#ff9800', '#f44336']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        });
+</script>
 {% endblock %}

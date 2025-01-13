@@ -12,10 +12,46 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 @admin_bp.route('/')
 def dashboard():
-    user_count = User.query.count()
-    product_count = Product.query.count()
-    order_count = Order.query.count()
-    return render_template('admin/admin_dashboard.html', user_count=user_count, product_count=product_count, order_count=order_count)
+    # Total sales calculation
+    total_sales = db.session.query(func.sum(Order.total_price)).scalar() or 0.0
+
+    
+    # Total profit calculation
+    total_profit = (
+        db.session.query(
+            func.sum((Product.selling_price - Product.cost_price) * OrderItem.quantity)
+        )
+        .select_from(OrderItem)  # Explicitly set the starting point of the join
+        .join(Product, Product.product_id == OrderItem.product_id)  # Explicit ON clause
+        .scalar()
+        or 0.0
+    )
+
+
+    # Average sales calculation
+    avg_sales = db.session.query(func.avg(Order.total_price)).scalar() or 0.0
+
+    # Product availability
+    product_availability = db.session.query(Product.name, Product.stock_quantity).all()
+
+    # Total products sold grouped by categories
+    products_sold = (
+        db.session.query(Category.category_name, func.sum(OrderItem.quantity))
+        .join(Product, Product.category_id == Category.category_id)
+        .join(OrderItem, OrderItem.product_id == Product.product_id)
+        .group_by(Category.category_name)
+        .all()
+    )
+
+    return render_template(
+        'admin/admin_dashboard.html',
+        total_sales=total_sales,
+        total_profit=total_profit,
+        avg_sales=avg_sales,
+        product_availability=product_availability,
+        products_sold=products_sold
+    )
+
 
 
 # Route to list users
@@ -55,7 +91,7 @@ def update_user(user_id):
 
     if form.validate_on_submit():
         user.name = form.name.data
-        user.role = form.name.data
+        user.role = form.role.data
         user.phone_number = form.phone_number.data
         user.country = form.country.data
         user.region = form.region.data
@@ -214,11 +250,6 @@ def delete_order(order_id):
     db.session.commit()
     flash("Order deleted successfully", "success")
     return redirect(url_for('admin.admin_orders'))
-
-
-# @admin_bp.route('/analytics')
-# def analytics():
-#     return render_template('admin/analytics.html')
 
 
 @admin_bp.route('/analytics')

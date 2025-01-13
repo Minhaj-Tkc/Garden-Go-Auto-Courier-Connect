@@ -136,4 +136,8 @@
         align-items: center;
     }
 
+    .carousel-images img {
+        height: 250px;
+    }
+
 }
