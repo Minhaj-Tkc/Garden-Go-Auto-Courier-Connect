@@ -1,5 +1,5 @@
 .cart-container { 
-    min-height: calc(100vh - 62px); 
+    min-height: calc(100vh - 66px); 
     width: 100%;
     background-color: #fff;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -305,6 +305,12 @@
 
     .change-address-link {
         font-size: 13px;
+    }
+
+
+    .cart-container { 
+        
+        padding: 20px;
     }
 }
 

@@ -1,6 +1,6 @@
 /* product-details-container  */
 .product-details-container {
-    min-height: calc(100vh - 146px); 
+    min-height: calc(100vh - 150px); 
     display: flex;
     justify-content: center;
     align-items: center;

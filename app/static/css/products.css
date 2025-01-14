@@ -1,7 +1,7 @@
 /* Page Wrapper */
 .products-container {
     padding: 30px;
-    min-height: calc(100vh - 62px); 
+    min-height: calc(100vh - 66px); 
 }
 
 .page-title {

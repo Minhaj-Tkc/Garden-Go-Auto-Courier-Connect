@@ -3,7 +3,7 @@
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
-    min-height: calc(100vh - 146px);
+    min-height: calc(100vh - 150px);
 }
 
 /* Title */
@@ -95,6 +95,7 @@
 /* Table Styles */
 .table-container {
     margin-top: 20px;
+    overflow-x: auto;
 }
 
 .table-container h2 {
@@ -132,4 +133,12 @@
 .inline-form {
     display: inline-block;
     margin: 0;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .responsive-table {
+        width: 800px;
+    }
 }

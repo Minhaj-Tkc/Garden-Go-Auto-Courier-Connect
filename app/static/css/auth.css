@@ -1,7 +1,7 @@
 /* Login and Registration Page */
 .auth-container {
     display: flex;
-    min-height: calc(100vh - 146px);
+    min-height: calc(100vh - 150px);
 }
 
 .auth-container .left-section {

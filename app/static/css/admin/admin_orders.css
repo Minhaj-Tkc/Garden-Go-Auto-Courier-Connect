@@ -2,7 +2,11 @@
 
 .admin-orders-container {
     padding: 50px;
-    min-height: calc(100vh - 146px);
+    min-height: calc(100vh - 150px);
+}
+
+.container {
+    overflow-x: auto;
 }
 
 .table-hover tr:hover {
@@ -55,4 +59,12 @@
 }
 .modal-footer .btn {
     padding: 0.6rem 1.2rem;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .table {
+        width: 1000px;
+    }
 }
